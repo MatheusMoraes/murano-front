@@ -1,0 +1,141 @@
+/* Styles for AddProductModal component */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.modal-overlay.show {
+  opacity: 1;
+}
+
+.modal-overlay.hide {
+  opacity: 0;
+}
+
+
+.modal-content {
+  background: #fff;
+  border-radius: 12px;
+  max-width: 500px;
+  width: 100%;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  max-height: 90vh;
+  overflow-y: auto;
+  transform: translateY(-20px) scale(0.95);
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.modal-content.show {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+.modal-content.hide {
+  transform: translateY(-20px) scale(0.95);
+  opacity: 0;
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 1.25rem;
+}
+
+.modal-content select,
+.modal-content input[type="number"] {
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.modal-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.modal-form select,
+.modal-form input {
+  flex: 1 1 auto;
+}
+
+.modal-content ul {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0;
+}
+
+.modal-content li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.modal-content li button {
+  margin-left: 8px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.alert-error {
+  background: #ffdddd;
+  color: #a00;
+  padding: 8px;
+  border-radius: 6px;
+  margin: 8px 0;
+  cursor: pointer;
+  position: relative;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* secondary button variant */
+.button-secondary {
+  background: #e5e7eb;
+  color: #333;
+}
+
+.button-secondary:hover {
+  background: #d1d5db;
+}
+
+
+/* override generic button width inside modal */
+.modal-content .button {
+  width: auto;
+}
+
+@media (max-width: 576px) {
+  .modal-content {
+     padding: 16px;
+  }
+  .modal-actions {
+     flex-direction: column;
+     align-items: stretch;
+  }
+  .modal-content select,
+  .modal-content input[type="number"] {
+     width: 100%;
+     margin-bottom: 12px;
+  }
+  .modal-content button {
+     width: 100%;
+  }
+}
