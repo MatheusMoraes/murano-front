@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 import api from "../api/api";
 import type { Order } from "../types/order";
+import { formatCurrency } from "../utils/formatCurrency";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
 interface Props {
   orderId: number | null;
+  refreshTrigger?: number;
 }
 
-export default function OrderDetails({ orderId }: Props) {
+export default function OrderDetails({ orderId, refreshTrigger = 0 }: Props) {
   const [order, setOrder] = useState<Order | null>(null);
 
   useEffect(() => {
@@ -21,7 +23,7 @@ export default function OrderDetails({ orderId }: Props) {
         console.error("Erro ao buscar pedido:", err);
         setOrder(null);
       });
-  }, [orderId]);
+  }, [orderId, refreshTrigger]);
 
   if (!order) {
     return <p>Selecione um pedido...</p>;
@@ -32,7 +34,7 @@ export default function OrderDetails({ orderId }: Props) {
       "Numero Item,Nome,Quantidade,Preco Unitario,Preco Total\n";
 
     order.items.forEach((item, index) => {
-      csv += `${index + 1},${item.nomeProduto},${item.quantidade},${item.precoUnitario},${item.total}\n`;
+      csv += `${index + 1},${item.nomeProduto},${item.quantidade},${item.precoUnitario.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })},${item.total.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\n`;
     });
 
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -67,8 +69,8 @@ export default function OrderDetails({ orderId }: Props) {
       index + 1,
       item.nomeProduto,
       item.quantidade,
-      item.precoUnitario.toFixed(2),
-      item.total.toFixed(2),
+      item.precoUnitario.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+      item.total.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
     ]);
 
     autoTable(doc, {
@@ -91,7 +93,7 @@ export default function OrderDetails({ orderId }: Props) {
 
     doc.setFontSize(14);
     doc.text(
-      `Valor Total = ${order.valorTotal.toFixed(2)}`,
+      `Valor Total = ${order.valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       14,
       finalY + 10
     );
@@ -106,7 +108,7 @@ export default function OrderDetails({ orderId }: Props) {
       <div className="page-header">
         <h2>Pedido #{order.id}</h2>
         <div>
-          R$ {order.valorTotal.toFixed(2)}
+          {formatCurrency(order.valorTotal)}
         </div>
       </div>
 
@@ -131,8 +133,8 @@ export default function OrderDetails({ orderId }: Props) {
               <td>{index + 1}</td>
               <td>{item.nomeProduto}</td>
               <td>{item.quantidade}</td>
-              <td>R$ {item.precoUnitario.toFixed(2).replace(".",",")}</td>
-              <td>R$ {item.total.toFixed(2).replace(".",",")}</td>
+              <td>{formatCurrency(item.precoUnitario)}</td>
+              <td>{formatCurrency(item.total)}</td>
             </tr>
           ))}
         </tbody>

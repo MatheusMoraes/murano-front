@@ -87,12 +87,38 @@ export default function AddProductModal({
       setTimeout(() => setLocalError(null), 4000);
       return;
     }
-    setOrderItems(prev => [
-      ...prev,
-      { produtoId: selectedProductId, quantidade: quantity }
-    ]);
+    
+    // Verifica se o produto já existe no pedido
+    const existingIndex = orderItems.findIndex(item => item.produtoId === selectedProductId);
+    if (existingIndex >= 0) {
+      // Se existe, aumenta a quantidade
+      setOrderItems(prev => {
+        const updated = [...prev];
+        updated[existingIndex].quantidade += quantity;
+        return updated;
+      });
+    } else {
+      // Se não existe, adiciona como novo item
+      setOrderItems(prev => [
+        ...prev,
+        { produtoId: selectedProductId, quantidade: quantity }
+      ]);
+    }
+    
     setSelectedProductId(undefined);
     setQuantity(1);
+  }
+
+  function handleUpdateQuantity(idx: number, newQuantity: number) {
+    if (newQuantity < 1) {
+      handleRemoveItem(idx);
+      return;
+    }
+    setOrderItems(prev => {
+      const updated = [...prev];
+      updated[idx].quantidade = newQuantity;
+      return updated;
+    });
   }
 
   function handleRemoveItem(idx: number) {
@@ -138,9 +164,28 @@ export default function AddProductModal({
         </div>
         <ul>
           {orderItems.map((item, idx) => (
-            <li key={idx}>
-              {products.find(p => p.id === item.produtoId)?.nome} - Quantidade: {item.quantidade}
-              <button className="button-secondary" onClick={() => handleRemoveItem(idx)}>Remover</button>
+            <li key={idx} className="order-item">
+              <div className="order-item-info">
+                <span className="product-name">{products.find(p => p.id === item.produtoId)?.nome}</span>
+              </div>
+              <div className="order-item-controls">
+                <button className="qty-btn" onClick={() => handleUpdateQuantity(idx, item.quantidade - 1)}>−</button>
+                <input 
+                  type="number" 
+                  min={1} 
+                  value={item.quantidade}
+                  onChange={(e) => handleUpdateQuantity(idx, Number(e.target.value))}
+                  className="qty-input"
+                />
+                <button className="qty-btn" onClick={() => handleUpdateQuantity(idx, item.quantidade + 1)}>+</button>
+              </div>
+              <button 
+                className="btn-remove" 
+                onClick={() => handleRemoveItem(idx)}
+                title="Remover produto"
+              >
+                ✕
+              </button>
             </li>
           ))}
         </ul>

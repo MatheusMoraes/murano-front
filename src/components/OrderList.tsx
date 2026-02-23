@@ -21,6 +21,7 @@ export default function OrderList() {
   const [editingOrderId, setEditingOrderId] = useState<number | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
     api.get<Order[]>("/orders").then(res => setOrders(res.data));
@@ -53,6 +54,8 @@ export default function OrderList() {
     setShowAddProductModal(false);
     setOrderItems([]);
     setEditingOrderId(null);
+    // Trigger refresh de OrderDetails para atualizar dados em tempo real
+    setRefreshTrigger(prev => prev + 1);
     setSuccessMsg("Pedido salvo com sucesso!");
     setTimeout(() => setSuccessMsg(null), 3000);
   }
@@ -62,6 +65,8 @@ export default function OrderList() {
       let response;
       if (editingOrderId) {
         response = await api.put(`/orders/${editingOrderId}`, { items: orderItems });
+        // Recarrega o pedido específico para garantir sincronização
+        await api.get<Order>(`/orders/${editingOrderId}`);
       } else {
         response = await api.post("/orders", { items: orderItems });
       }
@@ -191,7 +196,7 @@ export default function OrderList() {
 
               {(isOpen || isClosing) && (
                 <div className={`order-details-wrapper ${isClosing ? "closing" : "opening"}`}>
-                  <OrderDetails orderId={order.id} />
+                  <OrderDetails orderId={order.id} refreshTrigger={refreshTrigger} />
                 </div>
               )}
             </li>

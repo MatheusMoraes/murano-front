@@ -24,7 +24,7 @@
 .modal-content {
   background: #fff;
   border-radius: 12px;
-  max-width: 500px;
+  max-width: 1000px;
   width: 100%;
   padding: 24px;
   box-shadow: 0 8px 24px rgba(0,0,0,0.1);
@@ -74,6 +74,105 @@
   list-style: none;
   padding: 0;
   margin: 16px 0;
+}
+
+.order-item {
+  display: grid;
+  grid-template-columns: 6fr 4fr 2fr;
+  gap: 12px;
+  align-items: center;
+  padding: 6px;
+  background: #f9fafb;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  border-left: 4px solid #6366f1;
+  min-height: 15px;
+}
+
+.order-item-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 15px;
+}
+
+.product-name {
+  font-weight: 600;
+  color: #1f2937;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  max-width: 100%;
+  line-height: 1.4;
+}
+
+.order-item-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 8px;
+  height: 56px;
+}
+
+.qty-btn {
+  background: #f3f4f6;
+  border: none;
+  color: #6366f1;
+  width: 48px;
+  height: 48px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 22px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qty-btn:hover {
+  background: #6366f1;
+  color: white;
+}
+
+.qty-input {
+  width: 80px;
+  padding: 10px;
+  border: none;
+  text-align: center;
+  font-weight: 600;
+  font-size: 18px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+}
+
+.qty-input:focus {
+  outline: none;
+}
+
+.btn-remove {
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  width: 56px;
+  height: 56px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 20px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-remove:hover {
+  background: #dc2626;
+  transform: scale(1.05);
 }
 
 .modal-content li {
@@ -137,5 +236,16 @@
   }
   .modal-content button {
      width: 100%;
+  }
+  .order-item {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .order-item-controls {
+    width: 100%;
+    justify-content: space-around;
+  }
+  .qty-btn {
+    flex: 1;
   }
 }

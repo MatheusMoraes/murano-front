@@ -1,5 +1,6 @@
 import api from "../api/api";
 import type { Product } from "../types/products";
+import { formatCurrency } from "../utils/formatCurrency";
 
 interface Props {
   products: Product[];
@@ -30,7 +31,7 @@ export default function ProductList({ products, onEdit, onDeleted }: Props) {
           <div className="product-card-body">
             <div className="product-info">
               <p><strong>Estoque:</strong> {product.quantidade}</p>
-              <p><strong>Preço:</strong> R$ {product.preco.toFixed(2)}</p>
+              <p><strong>Preço:</strong> {formatCurrency(product.preco)}</p>
             </div>
           </div>
 
