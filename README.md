@@ -11,6 +11,25 @@ Currently, two official plugins are available:
 
 The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
+## Environment variables
+
+Create a `.env` file at the project root with any variables you need for the client. Vite only exposes values prefixed with `VITE_` to the browser. The shipping calculation logic uses a sandbox token stored as:
+
+```env
+VITE_MELHOR_ENVIO_TOKEN=<seu_token_aqui>
+```
+
+After changing `.env` you must restart the dev server for the values to take effect.
+
+### API endpoint
+
+Requests from the frontend are made directly to the MelhorEnvio service:
+
+```
+https://melhorenvio.com.br/api/v2/me/shipment/calculate
+```
+
+During early development you may test against the sandbox, but be aware that the sandbox does not emit CORS headers. You can keep the proxy configuration in `vite.config.ts` if you still need to route `/melhorenvio` to `https://sandbox.melhorenvio.com.br` for tests. Otherwise the code will always call the live URL. In a production setup you may still prefer to route calls through your own backend for security and rate‑limiting reasons.
 ## Expanding the ESLint configuration
 
 If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:

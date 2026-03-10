@@ -60,32 +60,35 @@ export default function OrderList() {
     setTimeout(() => setSuccessMsg(null), 3000);
   }
 
-  async function handleSubmitOrder() {
-    try {
-      let response;
-      if (editingOrderId) {
-        response = await api.put(`/orders/${editingOrderId}`, { items: orderItems });
-        // Recarrega o pedido específico para garantir sincronização
-        await api.get<Order>(`/orders/${editingOrderId}`);
-      } else {
-        response = await api.post("/orders", { items: orderItems });
-      }
-      // clear any previous error message on success
-      setErrorMsg(null);
-      return response.data;
-      // do not close modal here; onSuccess callback will handle it
-      // parent will refresh orders in onSuccess
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-      // if server returned validation / bad request -> bubble to caller
-      if (err.response?.status === 400 && err.response?.data) {
-        throw err; // modal will catch and display
-      } else {
-        // other errors bubble too
-        throw err;
-      }
+ async function handleSubmitOrder(orderData: {
+  NomeCliente: string;
+  Cep: string;
+  Rua: string;
+  Bairro: string;
+  Cidade: string;
+  Estado: string;
+  Numero: string;
+  Complemento: string;
+  Items: OrderItemLocal[];
+}) {
+  try {
+    let response;
+    if (editingOrderId) {
+      response = await api.put(`/orders/${editingOrderId}`, orderData);
+      await api.get<Order>(`/orders/${editingOrderId}`);
+    } else {
+      response = await api.post("/orders", orderData);
+    }
+    setErrorMsg(null);
+    return response.data;
+  } catch (err: any) {
+    if (err.response?.status === 400 && err.response?.data) {
+      throw err;
+    } else {
+      throw err;
     }
   }
+}
 
   async function handleEditOrder(id: number) {
     try {
