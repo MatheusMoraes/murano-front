@@ -6,7 +6,21 @@ import type {
 
 const api = axios.create({
   baseURL: "http://localhost:5051/api",
+  // Sem autenticação por cookie no fluxo atual, então não enviamos credenciais.
+  withCredentials: false,
 });
+
+// Se o backend responder 401 (sessão expirada/ausente), avisa o AuthContext
+// para limpar o estado de usuário e mandar a UI de volta pro /login.
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      window.dispatchEvent(new CustomEvent("auth:unauthorized"));
+    }
+    return Promise.reject(error);
+  }
+);
 
 /**
  * Calculate shipping options via the backend MelhorEnvio integration

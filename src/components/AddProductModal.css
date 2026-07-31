@@ -22,12 +22,14 @@
 
 
 .modal-content {
-  background: #fff;
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   max-width: 1000px;
   width: 100%;
   padding: 24px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
   max-height: 90vh;
   overflow-y: auto;
   transform: translateY(-20px) scale(0.95);
@@ -55,7 +57,9 @@
 .modal-content input[type="number"] {
   padding: 8px;
   border-radius: 8px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 
 .modal-form {
@@ -82,10 +86,10 @@
   gap: 12px;
   align-items: center;
   padding: 6px;
-  background: #f9fafb;
+  background: var(--color-surface-alt);
   border-radius: 8px;
   margin-bottom: 12px;
-  border-left: 4px solid #6366f1;
+  border-left: 4px solid var(--color-gold);
   min-height: 15px;
 }
 
@@ -98,7 +102,7 @@
 
 .product-name {
   font-weight: 600;
-  color: #1f2937;
+  color: var(--color-text);
   word-break: break-word;
   overflow-wrap: break-word;
   hyphens: auto;
@@ -110,17 +114,17 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
   border-radius: 6px;
   padding: 8px;
   height: 56px;
 }
 
 .qty-btn {
-  background: #f3f4f6;
+  background: var(--color-surface-alt);
   border: none;
-  color: #6366f1;
+  color: var(--color-gold-light);
   width: 48px;
   height: 48px;
   border-radius: 4px;
@@ -134,14 +138,16 @@
 }
 
 .qty-btn:hover {
-  background: #6366f1;
-  color: white;
+  background: var(--color-gold);
+  color: #171512;
 }
 
 .qty-input {
   width: 80px;
   padding: 10px;
   border: none;
+  background: transparent;
+  color: var(--color-text);
   text-align: center;
   font-weight: 600;
   font-size: 18px;
@@ -194,25 +200,15 @@
 }
 
 .alert-error {
-  background: #ffdddd;
-  color: #a00;
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
   padding: 8px;
   border-radius: 6px;
   margin: 8px 0;
   cursor: pointer;
   position: relative;
   z-index: 1000;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-/* secondary button variant */
-.button-secondary {
-  background: #e5e7eb;
-  color: #333;
-}
-
-.button-secondary:hover {
-  background: #d1d5db;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 
 
@@ -256,18 +252,19 @@
 .modal-content select {
   padding: 10px 12px;
   border-radius: 8px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border);
   font-size: 14px;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  background: #f9fafb;
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 
 .modal-content input:focus,
 .modal-content select:focus {
   outline: none;
-  border-color: #6366f1;
-  box-shadow: 0 0 0 2px rgba(99,102,241,0.2);
-  background: #fff;
+  border-color: var(--color-gold);
+  box-shadow: 0 0 0 2px rgba(212,175,55,0.2);
+  background: var(--color-surface-alt);
 }
 
 /* Stepper */
@@ -287,27 +284,27 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  border: 2px solid #ddd;
-  background: #fff;
-  color: #333;
+  border: 2px solid var(--color-border);
+  background: var(--color-surface-alt);
+  color: var(--color-text-muted);
   margin: 0 8px;
   transition: all 0.3s ease;
 }
 
 .stepper .step.active {
-  border-color: #6366f1;
-  background: #6366f1;
-  color: #fff;
+  border-color: var(--color-gold);
+  background: var(--gradient-gold);
+  color: #171512;
 }
 
 .stepper .line {
   flex: 1;
   height: 2px;
-  background: #ddd;
+  background: var(--color-border);
 }
 
 .stepper .line.active {
-  background: #6366f1;
+  background: var(--color-gold);
 }
 
 /* Legenda abaixo do stepper */
@@ -315,5 +312,5 @@
   text-align: center;
   margin-bottom: 24px;
   font-size: 14px;
-  color: #555;
+  color: var(--color-text-muted);
 }

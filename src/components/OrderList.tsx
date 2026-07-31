@@ -10,6 +10,17 @@ interface OrderItemLocal {
   quantidade: number;
 }
 
+interface CustomerFormData {
+  NomeCliente: string;
+  Cep: string;
+  Rua: string;
+  Bairro: string;
+  Cidade: string;
+  Estado: string;
+  Numero: string;
+  Complemento: string;
+}
+
 export default function OrderList() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [expandedIds, setExpandedIds] = useState<number[]>([]);
@@ -22,6 +33,7 @@ export default function OrderList() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [customerData, setCustomerData] = useState<CustomerFormData | null>(null);
 
   useEffect(() => {
     api.get<Order[]>("/orders").then(res => setOrders(res.data));
@@ -44,6 +56,7 @@ export default function OrderList() {
     setEditingOrderId(null);
     setIsCreating(true);
     setOrderItems([]);
+    setCustomerData(null);
     setShowAddProductModal(true);
   }
 
@@ -53,6 +66,7 @@ export default function OrderList() {
     setIsCreating(false);
     setShowAddProductModal(false);
     setOrderItems([]);
+    setCustomerData(null);
     setEditingOrderId(null);
     // Trigger refresh de OrderDetails para atualizar dados em tempo real
     setRefreshTrigger(prev => prev + 1);
@@ -94,6 +108,16 @@ export default function OrderList() {
     try {
       const resp = await api.get<Order>(`/orders/${id}`);
       setOrderItems(resp.data.items || []);
+      setCustomerData({
+        NomeCliente: resp.data.nomeCliente ?? "",
+        Cep: resp.data.cep ?? "",
+        Rua: resp.data.rua ?? "",
+        Bairro: resp.data.bairro ?? "",
+        Cidade: resp.data.cidade ?? "",
+        Estado: resp.data.estado ?? "",
+        Numero: resp.data.numero ?? "",
+        Complemento: resp.data.complemento ?? "",
+      });
       setEditingOrderId(id);
       setIsCreating(true);
       setShowAddProductModal(true);
@@ -214,6 +238,7 @@ export default function OrderList() {
             setShowAddProductModal(false);
             setIsCreating(false);
             setOrderItems([]);
+            setCustomerData(null);
           }}
           products={products}
           orderItems={orderItems}
@@ -221,6 +246,7 @@ export default function OrderList() {
           onSubmitOrder={handleSubmitOrder}
           onSuccess={handleOrderCreated}
           editMode={Boolean(editingOrderId)}
+          customerData={customerData}
         />
       )}
     </div>

@@ -7,6 +7,17 @@ interface OrderItemLocal {
   quantidade: number;
 }
 
+interface CustomerFormData {
+  NomeCliente: string;
+  Cep: string;
+  Rua: string;
+  Bairro: string;
+  Cidade: string;
+  Estado: string;
+  Numero: string;
+  Complemento: string;
+}
+
 interface AddProductModalProps {
   open: boolean;
   onClose: () => void;
@@ -26,6 +37,7 @@ interface AddProductModalProps {
   }) => Promise<void>;
   onSuccess?: () => void;
   editMode?: boolean;
+  customerData?: CustomerFormData | null;
 }
 
 export default function AddProductModal({
@@ -37,6 +49,7 @@ export default function AddProductModal({
   onSubmitOrder,
   onSuccess,
   editMode = false,
+  customerData,
 }: AddProductModalProps) {
   const [step, setStep] = useState(1); // controla o passo atual
   const [selectedProductId, setSelectedProductId] = useState<number | undefined>();
@@ -63,6 +76,29 @@ export default function AddProductModal({
       setVisible(true);
       setClosing(false);
       setStep(1); // sempre começa no passo 1
+      setLocalError(null);
+      setMessage(null);
+      setSubmitting(false);
+
+      if (customerData) {
+        setUserName(customerData.NomeCliente ?? "");
+        setCep(customerData.Cep ?? "");
+        setStreet(customerData.Rua ?? "");
+        setNeighborhood(customerData.Bairro ?? "");
+        setCity(customerData.Cidade ?? "");
+        setState(customerData.Estado ?? "");
+        setNumber(customerData.Numero ?? "");
+        setComplement(customerData.Complemento ?? "");
+      } else {
+        setUserName("");
+        setCep("");
+        setStreet("");
+        setNeighborhood("");
+        setCity("");
+        setState("");
+        setNumber("");
+        setComplement("");
+      }
     } else if (visible) {
       setClosing(true);
       const t = setTimeout(() => {
@@ -70,7 +106,7 @@ export default function AddProductModal({
       }, 300);
       return () => clearTimeout(t);
     }
-  }, [open]);
+  }, [open, customerData, visible]);
 
   function handleCloseRequest() {
     setClosing(true);
@@ -105,11 +141,27 @@ export default function AddProductModal({
   }
 }
 
+  function formatCep(value: string) {
+    const digits = value.replace(/\D/g, "").slice(0, 8);
+    if (digits.length > 5) {
+      return digits.replace(/(\d{5})(\d{1,3})/, "$1-$2");
+    }
+    return digits;
+  }
+
+  function isCepValid(value: string) {
+    return /^\d{5}-\d{3}$/.test(value);
+  }
+
   async function handleCepChange(value: string) {
-    setCep(value);
-    if (value.length === 8) {
+    const formatted = formatCep(value);
+    setCep(formatted);
+    setLocalError(null);
+
+    if (isCepValid(formatted)) {
       try {
-        const res = await fetch(`https://viacep.com.br/ws/${value}/json/`);
+        const formattedCep = formatted.replace("-", "");
+        const res = await fetch(`https://viacep.com.br/ws/${formattedCep}/json/`);
         const data = await res.json();
         if (!data.erro) {
           setStreet(data.logradouro);
@@ -197,13 +249,16 @@ export default function AddProductModal({
           <div className="modal-form">
             <input
               type="text"
-              placeholder="Nome do usuário"
+              placeholder="Nome do cliente"
               value={userName}
               onChange={e => setUserName(e.target.value)}
             />
             <input
               type="text"
               placeholder="CEP"
+              inputMode="numeric"
+              pattern="\d{5}-\d{3}"
+              maxLength={9}
               value={cep}
               onChange={e => handleCepChange(e.target.value)}
             />
@@ -224,7 +279,18 @@ export default function AddProductModal({
               onChange={e => setComplement(e.target.value)}
             />
             <div className="modal-actions" style={{ marginTop: 16 }}>
-              <button className="button" onClick={() => setStep(2)}>Próximo</button>
+              <button
+                className="button"
+                onClick={() => {
+                  if (!isCepValid(cep)) {
+                    setLocalError("CEP inválido. Use o formato 99999-999.");
+                    return;
+                  }
+                  setStep(2);
+                }}
+              >
+                Próximo
+              </button>
               <button className="button button-secondary" onClick={handleCloseRequest}>Cancelar</button>
             </div>
           </div>

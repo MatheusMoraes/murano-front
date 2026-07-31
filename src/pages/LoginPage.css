@@ -1,0 +1,208 @@
+/* ========================
+   LOGIN PAGE
+======================== */
+
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background: radial-gradient(circle at 50% 20%, #1a1508 0%, #0b0a0d 60%);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 960px;
+  min-height: 560px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+}
+
+/* ---- Hero / left panel ---- */
+
+.login-card__hero {
+  position: relative;
+  overflow: hidden;
+  padding: 56px 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 20px;
+  color: var(--color-text);
+  background: radial-gradient(circle at 50% 30%, #262019 0%, #0b0a0d 75%);
+  border-right: 1px solid var(--color-border);
+}
+
+.login-card__hero::before {
+  content: "";
+  position: absolute;
+  top: -10%;
+  left: -10%;
+  width: 60%;
+  height: 60%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.18) 0%, rgba(212, 175, 55, 0) 70%);
+}
+
+.login-card__logo {
+  position: relative;
+  width: 190px;
+  height: 190px;
+  border-radius: 50%;
+  filter: drop-shadow(0 0 30px rgba(212, 175, 55, 0.35));
+}
+
+.login-card__hero h1 {
+  position: relative;
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--color-gold-light);
+}
+
+.login-card__hero p {
+  position: relative;
+  margin: 0;
+  max-width: 300px;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}
+
+/* ---- Form / right panel ---- */
+
+.login-card__form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 56px 64px;
+}
+
+.login-card__form h2 {
+  margin: 0 0 32px;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--color-gold-light);
+}
+
+.login-field {
+  position: relative;
+  margin-bottom: 18px;
+}
+
+.login-field svg {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-gold);
+}
+
+.login-field input {
+  width: 100%;
+  padding: 13px 16px 13px 46px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-alt);
+  font-size: 0.95rem;
+  color: var(--color-text);
+  transition: 0.2s ease;
+}
+
+.login-field input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.login-field input:focus {
+  outline: none;
+  border-color: var(--color-gold);
+  background: var(--color-bg);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+}
+
+.login-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  font-size: 0.85rem;
+}
+
+.login-remember {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text-muted);
+}
+
+.login-remember input {
+  accent-color: var(--color-gold);
+  width: 15px;
+  height: 15px;
+}
+
+.login-forgot {
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+
+.login-forgot:hover {
+  color: var(--color-gold-light);
+  text-decoration: underline;
+}
+
+.login-submit {
+  width: 100%;
+  padding: 13px;
+  border: none;
+  border-radius: 999px;
+  background: var(--gradient-gold);
+  color: #171512;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: 0.2s ease;
+  box-shadow: 0 10px 20px rgba(212, 175, 55, 0.25);
+}
+
+.login-submit:hover {
+  filter: brightness(1.08);
+}
+
+.login-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .login-card {
+    grid-template-columns: 1fr;
+  }
+
+  .login-card__hero {
+    padding: 40px 32px;
+    min-height: 220px;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .login-card__logo {
+    width: 140px;
+    height: 140px;
+  }
+
+  .login-card__form {
+    padding: 40px 32px;
+  }
+}
