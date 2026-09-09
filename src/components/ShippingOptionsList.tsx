@@ -1,4 +1,3 @@
-import React from "react";
 import type { ShippingOption } from "../types/order";
 import { formatCurrency } from "../utils/formatCurrency";
 
