@@ -5,7 +5,7 @@ import type {
 } from "../types/order";
 
 const api = axios.create({
-  baseURL: "http://localhost:5051/api",
+  baseURL: "https://muranoapp-1.onrender.com/api",
   // Sem autenticação por cookie no fluxo atual, então não enviamos credenciais.
   withCredentials: false,
 });
