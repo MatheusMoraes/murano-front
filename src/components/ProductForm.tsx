@@ -17,7 +17,11 @@ export default function ProductForm({
   const isEdit = Boolean(product?.id);
 
   const [nome, setName] = useState("");
-  const [preco, setPrice] = useState<number>(0);
+  const [precoVarejo, setPrecoVarejo] = useState<number>(0);
+  // 0 aqui significa "sem atacado configurado" (não faz sentido um preço de
+  // atacado igual a zero de verdade).
+  const [precoAtacado, setPrecoAtacado] = useState<number>(0);
+  const [quantidadeMinimaAtacado, setQuantidadeMinimaAtacado] = useState<number>(0);
   const [quantidade, setQuantity] = useState<number>(0);
   const [loading, setLoading] = useState(false);
 
@@ -37,11 +41,15 @@ export default function ProductForm({
   useEffect(() => {
     if (product) {
       setName(product.nome);
-      setPrice(product.preco);
+      setPrecoVarejo(product.precoVarejo);
+      setPrecoAtacado(product.precoAtacado ?? 0);
+      setQuantidadeMinimaAtacado(product.quantidadeMinimaAtacado ?? 0);
       setQuantity(product.quantidade);
     } else {
       setName("");
-      setPrice(0);
+      setPrecoVarejo(0);
+      setPrecoAtacado(0);
+      setQuantidadeMinimaAtacado(0);
       setQuantity(0)
     }
   }, [product]);
@@ -55,12 +63,27 @@ export default function ProductForm({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
+    if (precoAtacado > 0 && quantidadeMinimaAtacado <= 0) {
+      setMessage({ text: "Informe a quantidade mínima para o preço de atacado.", type: "error" });
+      return;
+    }
+    if (quantidadeMinimaAtacado > 0 && precoAtacado <= 0) {
+      setMessage({ text: "Informe o preço de atacado.", type: "error" });
+      return;
+    }
+    if (precoAtacado > 0 && precoAtacado > precoVarejo) {
+      setMessage({ text: "O preço de atacado não pode ser maior que o de varejo.", type: "error" });
+      return;
+    }
+
     try {
       setLoading(true);
 
       const payload = {
         nome,
-        preco,
+        precoVarejo,
+        precoAtacado: precoAtacado > 0 ? precoAtacado : null,
+        quantidadeMinimaAtacado: quantidadeMinimaAtacado > 0 ? quantidadeMinimaAtacado : null,
         quantidade
       };
 
@@ -129,8 +152,25 @@ export default function ProductForm({
           </div>
 
           <div className="form-group">
-            <label>Preço</label>
-            <MoneyInput value={preco} onChange={setPrice} />
+            <label>Preço Varejo</label>
+            <MoneyInput value={precoVarejo} onChange={setPrecoVarejo} />
+          </div>
+
+          <div className="form-group">
+            <label>Preço Atacado (opcional)</label>
+            <MoneyInput value={precoAtacado} onChange={setPrecoAtacado} />
+          </div>
+
+          <div className="form-group">
+            <label>Quantidade mínima para atacado</label>
+            <input
+              type="number"
+              min={0}
+              value={quantidadeMinimaAtacado}
+              onChange={(e) => setQuantidadeMinimaAtacado(Number(e.target.value))}
+              className="input"
+              placeholder="Ex: 10"
+            />
           </div>
 
           <div className="form-actions">

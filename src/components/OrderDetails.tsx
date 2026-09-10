@@ -6,13 +6,43 @@ import type {
 import { formatCurrency } from "../utils/formatCurrency";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import logoUrl from "../assets/logo.png";
+
+// Paleta da marca (mesmas cores de src/index.css), em RGB para uso no jsPDF.
+const PDF_COLORS = {
+  surface: [23, 21, 27] as [number, number, number],       // --color-surface
+  gold: [212, 175, 55] as [number, number, number],        // --color-gold
+  goldDark: [156, 122, 30] as [number, number, number],    // --color-gold-dark
+  goldLight: [243, 217, 139] as [number, number, number],  // --color-gold-light
+  goldTint: [250, 243, 224] as [number, number, number],   // fundo leve com tom de ouro
+  text: [241, 233, 210] as [number, number, number],       // --color-text
+  textDark: [23, 21, 18] as [number, number, number],      // texto sobre fundo dourado
+  textMuted: [120, 108, 78] as [number, number, number],   // --color-text-muted (ajustado p/ fundo branco)
+};
+
+// Converte a logo importada (URL do bundle) em data URL, formato aceito
+// pelo jsPDF via doc.addImage.
+async function imageUrlToBase64(url: string): Promise<string> {
+  const res = await fetch(url);
+  const blob = await res.blob();
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
 
 interface Props {
   orderId: number | null;
   refreshTrigger?: number;
+  // Usado quando o componente é exibido dentro do detalhe do cliente: os
+  // dados do cliente já aparecem ali, então some com a repetição e mostra
+  // só uma linha de endereço de entrega.
+  compact?: boolean;
 }
 
-export default function OrderDetails({ orderId, refreshTrigger = 0 }: Props) {
+export default function OrderDetails({ orderId, refreshTrigger = 0, compact = false }: Props) {
   const [order, setOrder] = useState<Order | null>(null);
 
   useEffect(() => {
@@ -74,31 +104,46 @@ export default function OrderDetails({ orderId, refreshTrigger = 0 }: Props) {
     };
 
     // ── Cabeçalho ──────────────────────────────────────────────
-    doc.setFillColor(30, 30, 30);
+    doc.setFillColor(...PDF_COLORS.surface);
     doc.rect(0, 0, pageW, 22, 'F');
 
-    doc.setTextColor(255, 255, 255);
+    // Logo à esquerda do cabeçalho (se falhar ao carregar, segue sem ela)
+    let tituloX = 14;
+    try {
+      const logoBase64 = await imageUrlToBase64(logoUrl);
+      doc.addImage(logoBase64, 'PNG', 12, 3, 16, 16);
+      tituloX = 32;
+    } catch (err) {
+      console.error('Não foi possível carregar a logo no PDF:', err);
+    }
+
+    doc.setTextColor(...PDF_COLORS.text);
     doc.setFontSize(15);
     doc.setFont('helvetica', 'bold');
-    doc.text(`PEDIDO Nº ${order.id}`, 14, 14);
+    doc.text(`PEDIDO Nº ${order.id}`, tituloX, 14);
 
     doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
-    const utcDate = new Date(order.criadoEm);
-    utcDate.setHours(utcDate.getHours() - 3);
-    const dataFormatada = utcDate.toLocaleString('pt-BR');
+    doc.setTextColor(...PDF_COLORS.goldLight);
+    // order.criadoEm vem em UTC do backend (com "Z"); fixamos o fuso de
+    // Brasília explicitamente em vez de confiar no fuso do navegador, e sem
+    // subtrair horas manualmente (isso já causou o bug de ficar 3h atrasado).
+    const dataFormatada = new Date(order.criadoEm).toLocaleString('pt-BR', {
+      timeZone: 'America/Sao_Paulo',
+    });
     doc.text(`Emitido em: ${dataFormatada}`, pageW - 14, 14, { align: 'right' });
 
     // ── Dados do cliente ────────────────────────────────────────
-    doc.setTextColor(30, 30, 30);
+    doc.setTextColor(...PDF_COLORS.goldDark);
     doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
     doc.text('DADOS DO CLIENTE', 14, 32);
-    doc.setDrawColor(200, 200, 200);
+    doc.setDrawColor(...PDF_COLORS.gold);
     doc.line(14, 34, pageW - 14, 34);
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(9);
+    doc.setTextColor(30, 30, 30);
     doc.text('Cliente:', 14, 41);
     doc.setFont('helvetica', 'bold');
     doc.text(order.nomeCliente, 35, 41);
@@ -112,9 +157,9 @@ export default function OrderDetails({ orderId, refreshTrigger = 0 }: Props) {
     // ── Tabela de produtos ──────────────────────────────────────
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(10);
-    doc.setTextColor(30, 30, 30);
+    doc.setTextColor(...PDF_COLORS.goldDark);
     doc.text('ITENS DO PEDIDO', 14, 58);
-    doc.setDrawColor(200, 200, 200);
+    doc.setDrawColor(...PDF_COLORS.gold);
     doc.line(14, 60, pageW - 14, 60);
 
     const tableData = order.items.map((item, index) => [
@@ -130,8 +175,8 @@ export default function OrderDetails({ orderId, refreshTrigger = 0 }: Props) {
       head: [['Nº', 'Produto', 'Qtd', 'Preço Unit.', 'Total']],
       body: tableData,
       styles: { fontSize: 9, cellPadding: 3 },
-      headStyles: { fillColor: [30, 30, 30], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 9 },
-      alternateRowStyles: { fillColor: [245, 245, 245] },
+      headStyles: { fillColor: PDF_COLORS.gold, textColor: PDF_COLORS.textDark, fontStyle: 'bold', fontSize: 9 },
+      alternateRowStyles: { fillColor: PDF_COLORS.goldTint },
       columnStyles: {
         0: { halign: 'center', cellWidth: 10 },
         2: { halign: 'center', cellWidth: 14 },
@@ -145,9 +190,9 @@ export default function OrderDetails({ orderId, refreshTrigger = 0 }: Props) {
 
     // ── Valor total ─────────────────────────────────────────────
     finalY = ensureSpace(finalY, 24);
-    doc.setFillColor(30, 30, 30);
+    doc.setFillColor(...PDF_COLORS.gold);
     doc.rect(pageW - 80, finalY + 4, 66, 10, 'F');
-    doc.setTextColor(255, 255, 255);
+    doc.setTextColor(...PDF_COLORS.textDark);
     doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
     doc.text(
@@ -158,39 +203,37 @@ export default function OrderDetails({ orderId, refreshTrigger = 0 }: Props) {
     );
     doc.setFontSize(7);
     doc.setFont('helvetica', 'normal');
-    doc.setTextColor(120, 120, 120);
+    doc.setTextColor(...PDF_COLORS.textMuted);
     doc.text(
       '* Não inclui frete.',
       pageW - 14,
       finalY + 18,
       { align: 'right' }
     );
-    finalY += 24;
 
-    try {
-
-
-      doc.addPage();           // sem espaço mesmo com QR reduzido → nova página
-      finalY = 14;
-
-      doc.save(`pedido_${order.id}.pdf`);
-    } catch (err) {
-      console.error('Erro ao gerar PDF:', err);
-    }
+    doc.save(`pedido_${order.id}.pdf`);
   };
+
+  const enderecoEntrega = [order.rua, order.numero, order.bairro, order.cep]
+    .filter(Boolean)
+    .join(", ");
 
   return (
     <>
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <p><b>Cliente:</b> {order.nomeCliente}</p>
-        <p><b>Cep:</b> {order.cep}</p>
-        <p><b>Rua:</b> {order.rua}</p>
-        <p><b>Bairro:</b> {order.bairro}</p>
-        <p><b>Cidade:</b> {order.cidade}</p>
-        <p><b>Estado:</b> {order.estado}</p>
-        <p><b>Número:</b> {order.numero}</p>
-        <p><b>Complemento:</b> {order.complemento}</p>
-      </div>
+      {compact ? (
+        <p><b>Endereço de entrega:</b> {enderecoEntrega || "-"}</p>
+      ) : (
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <p><b>Cliente:</b> {order.nomeCliente}</p>
+          <p><b>Cep:</b> {order.cep}</p>
+          <p><b>Rua:</b> {order.rua}</p>
+          <p><b>Bairro:</b> {order.bairro}</p>
+          <p><b>Cidade:</b> {order.cidade}</p>
+          <p><b>Estado:</b> {order.estado}</p>
+          <p><b>Número:</b> {order.numero}</p>
+          <p><b>Complemento:</b> {order.complemento}</p>
+        </div>
+      )}
 
       <hr style={{ height: "0.3px", color: "#8080800d" }} />
 

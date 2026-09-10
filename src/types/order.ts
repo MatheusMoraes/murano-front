@@ -15,16 +15,29 @@ export interface OrderItem {
 export interface Order {
   id: number;
   criadoEm: string;
+  clientId: number;
   nomeCliente: string
-  cep : string;	
-  rua : string;	
-  bairro : string;	
-  cidade : string;	
+  cep : string;
+  rua : string;
+  bairro : string;
+  cidade : string;
   estado : string;
   numero : string;
   complemento : string;
   valorTotal: number;
   items: OrderItem[];
+}
+
+// Endereço de entrega específico de um pedido, enviado apenas quando o
+// cliente não quer usar o endereço cadastrado (checkbox "outro endereço").
+export interface EnderecoInput {
+  Cep: string;
+  Rua: string;
+  Bairro: string;
+  Cidade: string;
+  Estado: string;
+  Numero: string;
+  Complemento?: string;
 }
 
 // MelhorEnvio Shipping Calculator Request DTOs

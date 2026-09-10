@@ -1,6 +1,7 @@
 import { Routes, Route, Link } from "react-router-dom";
 import OrdersPage from "./pages/OrdersPage";
 import ProductsPage from "./pages/ProductsPage";
+import ClientsPage from "./pages/ClientsPage";
 import logo from "./assets/logo.png";
 
 export default function App() {
@@ -16,6 +17,9 @@ export default function App() {
           <Link to="/" style={{ marginRight: 15 }}>
             Pedidos
           </Link>
+          <Link to="/clients" style={{ marginRight: 15 }}>
+            Clientes
+          </Link>
           <Link to="/products" style={{ marginRight: 15 }}>
             Produtos
           </Link>
@@ -24,6 +28,7 @@ export default function App() {
 
       <Routes>
         <Route path="/" element={<OrdersPage />} />
+        <Route path="/clients" element={<ClientsPage />} />
         <Route path="/products" element={<ProductsPage />} />
       </Routes>
     </div>

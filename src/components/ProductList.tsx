@@ -31,7 +31,13 @@ export default function ProductList({ products, onEdit, onDeleted }: Props) {
           <div className="product-card-body">
             <div className="product-info">
               <p><strong>Estoque:</strong> {product.quantidade}</p>
-              <p><strong>Preço:</strong> {formatCurrency(product.preco)}</p>
+              <p><strong>Preço Varejo:</strong> {formatCurrency(product.precoVarejo)}</p>
+              {product.precoAtacado != null && product.quantidadeMinimaAtacado != null && (
+                <p>
+                  <strong>Preço Atacado:</strong> {formatCurrency(product.precoAtacado)}
+                  {" "}(a partir de {product.quantidadeMinimaAtacado} un.)
+                </p>
+              )}
             </div>
           </div>
 

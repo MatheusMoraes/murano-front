@@ -344,6 +344,101 @@ body {
 }
 
 /* ========================
+   CLIENTS
+======================== */
+
+.clients-page {
+  padding: 24px;
+}
+
+.clients-container {
+  background: var(--color-surface);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.clients-title {
+  margin-bottom: 20px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.clients-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.client-card {
+  background: var(--color-surface-alt);
+  border-radius: 14px;
+  padding: 18px;
+  transition: all 0.25s ease;
+  border: 1px solid transparent;
+}
+
+.client-card:hover {
+  border-color: var(--color-gold);
+}
+
+.client-card.open {
+  background: rgba(212, 175, 55, 0.08);
+  border-color: var(--color-gold);
+}
+
+.client-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.client-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.client-buttons button {
+  margin: 0 !important;
+  padding: 8px 14px !important;
+  min-width: 80px;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.client-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.client-name {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.client-sub {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.client-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 32px;
+}
+
+.client-order-row {
+  cursor: pointer;
+}
+
+/* ========================
    PRODUCTS
 ======================== */
 
@@ -650,7 +745,8 @@ body {
     grid-template-columns: repeat(3, 1fr);
   }
 
-  .order-header {
+  .order-header,
+  .client-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
@@ -673,6 +769,7 @@ body {
 
   .products-page,
   .orders-container,
+  .clients-container,
   .product-form {
     padding: 16px;
   }
@@ -700,11 +797,13 @@ body {
     padding: 12px;
   }
 
-  .order-card {
+  .order-card,
+  .client-card {
     padding: 12px;
   }
 
-  .order-id {
+  .order-id,
+  .client-name {
     font-size: 0.9rem;
   }
 

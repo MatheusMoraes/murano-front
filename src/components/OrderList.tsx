@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import api from "../api/api";
-import type { Order } from "../types/order";
+import type { EnderecoInput, Order } from "../types/order";
 import OrderDetails from "./OrderDetails";
 import AddProductModal from "./AddProductModal";
 import type { Product } from "../types/products";
+import type { Client } from "../types/client";
 
 interface OrderItemLocal {
   produtoId: number;
@@ -11,7 +12,8 @@ interface OrderItemLocal {
 }
 
 interface CustomerFormData {
-  NomeCliente: string;
+  ClientId: number;
+  UsarEnderecoDiferente: boolean;
   Cep: string;
   Rua: string;
   Bairro: string;
@@ -28,6 +30,7 @@ export default function OrderList() {
   const [isCreating, setIsCreating] = useState(false);
   const [showAddProductModal, setShowAddProductModal] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
+  const [clients, setClients] = useState<Client[]>([]);
   const [orderItems, setOrderItems] = useState<OrderItemLocal[]>([]);
   const [editingOrderId, setEditingOrderId] = useState<number | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -38,6 +41,7 @@ export default function OrderList() {
   useEffect(() => {
     api.get<Order[]>("/orders").then(res => setOrders(res.data));
     api.get<Product[]>("/products").then(res => setProducts(res.data));
+    api.get<Client[]>("/clients").then(res => setClients(res.data));
   }, []);
 
   function toggleOrder(id: number) {
@@ -75,14 +79,8 @@ export default function OrderList() {
   }
 
  async function handleSubmitOrder(orderData: {
-  NomeCliente: string;
-  Cep: string;
-  Rua: string;
-  Bairro: string;
-  Cidade: string;
-  Estado: string;
-  Numero: string;
-  Complemento: string;
+  ClientId: number;
+  EnderecoEntrega?: EnderecoInput;
   Items: OrderItemLocal[];
 }) {
   try {
@@ -108,8 +106,13 @@ export default function OrderList() {
     try {
       const resp = await api.get<Order>(`/orders/${id}`);
       setOrderItems(resp.data.items || []);
+      // O endereço já vem resolvido no pedido; tratamos como "endereço
+      // diferente" pré-preenchido para não perder o que foi salvo. O
+      // usuário pode desmarcar o checkbox para voltar a usar o endereço
+      // cadastrado do cliente.
       setCustomerData({
-        NomeCliente: resp.data.nomeCliente ?? "",
+        ClientId: resp.data.clientId,
+        UsarEnderecoDiferente: true,
         Cep: resp.data.cep ?? "",
         Rua: resp.data.rua ?? "",
         Bairro: resp.data.bairro ?? "",
@@ -241,6 +244,7 @@ export default function OrderList() {
             setCustomerData(null);
           }}
           products={products}
+          clients={clients}
           orderItems={orderItems}
           setOrderItems={setOrderItems}
           onSubmitOrder={handleSubmitOrder}
