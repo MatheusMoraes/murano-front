@@ -4,11 +4,22 @@ import type {
   ShippingOption,
 } from "../types/order";
 
+// Em produção o front chama seu próprio domínio (/api/...) e o vercel.json
+// faz o proxy reverso pro backend no Render — o navegador nunca vê o host
+// real do Render. Em dev local não existe esse proxy (o Vite não lê
+// vercel.json), então seguimos batendo direto no Render (ou troque para o
+// backend local, ex: http://localhost:5051/api).
+const baseURL = import.meta.env.PROD
+  ? "/api"
+  // : "https://muranoapp-1.onrender.com/api";
+   : "http://localhost:5051/api";
+
 const api = axios.create({
-    baseURL: "https://muranoapp-1.onrender.com/api",
-  // baseURL: "http://localhost:5051/api",
-  // Sem autenticação por cookie no fluxo atual, então não enviamos credenciais.
-  withCredentials: false,
+  baseURL,
+  // Necessário para o cookie httpOnly de autenticação (murano_auth) ir e
+  // voltar nas chamadas — tanto em prod (mesma origem, via proxy) quanto em
+  // dev local (cross-origin, direto pro Render).
+  withCredentials: true,
 });
 
 // Se o backend responder 401 (sessão expirada/ausente), avisa o AuthContext

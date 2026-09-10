@@ -1,6 +1,7 @@
 export interface LoginRequest {
   email: string;
   senha: string;
+  lembrar: boolean;
 }
 
 export interface User {
