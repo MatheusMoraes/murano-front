@@ -67,6 +67,9 @@ export default function OrderList() {
   function handleOrderCreated() {
     api.get<Order[]>("/orders").then(res => setOrders(res.data));
     api.get<Product[]>("/products").then(res => setProducts(res.data));
+    // Criar/editar pedido decrementa o estoque dos produtos — avisa o sino
+    // de estoque baixo no header pra ele recalcular na hora.
+    window.dispatchEvent(new CustomEvent("products:changed"));
     setIsCreating(false);
     setShowAddProductModal(false);
     setOrderItems([]);
@@ -135,6 +138,8 @@ export default function OrderList() {
       await api.delete(`/orders/${id}`);
       api.get<Order[]>("/orders").then(res => setOrders(res.data));
       api.get<Product[]>("/products").then(res => setProducts(res.data));
+      // Excluir pedido repõe o estoque — mesmo aviso pro header.
+      window.dispatchEvent(new CustomEvent("products:changed"));
       setSuccessMsg("Pedido excluído com sucesso!");
       setTimeout(() => setSuccessMsg(null), 3000);
     } catch (err) {
