@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Routes, Route, Link, Navigate, useNavigate } from "react-router-dom";
 import OrdersPage from "./pages/OrdersPage";
 import ProductsPage from "./pages/ProductsPage";
@@ -7,9 +7,11 @@ import LoginPage from "./pages/LoginPage";
 import PrivateRoute from "./components/PrivateRoute";
 import { useAuth } from "./contexts/AuthContext";
 import api from "./api/api";
+import type { Product } from "./types/products";
 import logo from "./assets/logo.png";
 
 const PING_INTERVAL_MS = 10_000;
+const LOW_STOCK_POLL_MS = 60_000;
 
 export default function App() {
   // Pinga o backend periodicamente só para manter a conexão com o banco
@@ -35,9 +37,43 @@ export default function App() {
   );
 }
 
+// Quantos produtos estão com estoque baixo agora, atualizado a cada 60s (e
+// ao carregar). Vive fora do componente pra não ficar refazendo o fetch
+// toda vez que o header re-renderiza por outro motivo.
+function useLowStockCount() {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    function load() {
+      api
+        .get<Product[]>("/products")
+        .then((res) => {
+          if (cancelled) return;
+          setCount(res.data.filter((p) => p.estoqueBaixo).length);
+        })
+        .catch(() => {
+          // Silencioso: ainda sem login, ou backend indisponível — não é
+          // motivo pra quebrar o cabeçalho.
+        });
+    }
+
+    load();
+    const interval = setInterval(load, LOW_STOCK_POLL_MS);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, []);
+
+  return count;
+}
+
 function AuthenticatedApp() {
   const { logout } = useAuth();
   const navigate = useNavigate();
+  const lowStockCount = useLowStockCount();
 
   async function handleLogout() {
     try {
@@ -67,6 +103,23 @@ function AuthenticatedApp() {
           <Link to="/products" style={{ marginRight: 15 }}>
             Produtos
           </Link>
+
+          {lowStockCount > 0 && (
+            <button
+              type="button"
+              className="low-stock-bell"
+              onClick={() => navigate("/products")}
+              title="Você tem itens com o estoque baixo. Clique para saber mais."
+              aria-label={`${lowStockCount} produto(s) com estoque baixo. Clique para ver.`}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
+                <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+              </svg>
+              <span className="low-stock-bell__badge">{lowStockCount}</span>
+            </button>
+          )}
+
           <button className="btn-outline" onClick={handleLogout}>
             Sair
           </button>

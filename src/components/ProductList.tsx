@@ -23,7 +23,10 @@ export default function ProductList({ products, onEdit, onDeleted }: Props) {
   return (
     <div className="product-grid">
       {products.map(product => (
-        <div key={product.id} className="product-card">
+        <div
+          key={product.id}
+          className={`product-card ${product.estoqueBaixo ? "product-card--low-stock" : ""}`}
+        >
           <div className="product-card-header">
             <h3>{product.nome}</h3>
           </div>
@@ -39,6 +42,11 @@ export default function ProductList({ products, onEdit, onDeleted }: Props) {
                 </p>
               )}
             </div>
+            {product.estoqueBaixo && (
+              <p className="low-stock-message">
+                ⚠ {product.quantidade} {product.quantidade === 1 ? "unidade restante" : "unidades restantes"}
+              </p>
+            )}
           </div>
 
           <div className="product-card-footer">

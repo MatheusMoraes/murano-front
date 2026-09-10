@@ -7,5 +7,9 @@ export interface Product {
   // não está configurado, o produto só tem preço de varejo.
   precoAtacado?: number | null;
   quantidadeMinimaAtacado?: number | null;
+  // Limite pra alerta de estoque baixo (opcional, por produto) e o
+  // resultado já calculado pelo backend (quantidade <= estoqueMinimo).
+  estoqueMinimo?: number | null;
+  estoqueBaixo: boolean;
   criadoEm: string;
 }

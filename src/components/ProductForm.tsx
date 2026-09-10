@@ -27,6 +27,8 @@ export default function ProductForm({
   const [precoAtacado, setPrecoAtacado] = useState<number>(0);
   const [quantidadeMinimaAtacado, setQuantidadeMinimaAtacado] = useState<number>(0);
   const [quantidade, setQuantity] = useState<number>(0);
+  // 0 aqui significa "alerta de estoque baixo desativado" pra esse produto.
+  const [estoqueMinimo, setEstoqueMinimo] = useState<number>(0);
   const [loading, setLoading] = useState(false);
 
   const [message, setMessage] = useState<
@@ -49,12 +51,14 @@ export default function ProductForm({
       setPrecoAtacado(product.precoAtacado ?? 0);
       setQuantidadeMinimaAtacado(product.quantidadeMinimaAtacado ?? 0);
       setQuantity(product.quantidade);
+      setEstoqueMinimo(product.estoqueMinimo ?? 0);
     } else {
       setName("");
       setPrecoVarejo(0);
       setPrecoAtacado(0);
       setQuantidadeMinimaAtacado(0);
       setQuantity(0)
+      setEstoqueMinimo(0);
     }
   }, [product]);
 
@@ -99,7 +103,8 @@ export default function ProductForm({
         precoVarejo,
         precoAtacado: precoAtacado > 0 ? precoAtacado : null,
         quantidadeMinimaAtacado: quantidadeMinimaAtacado > 0 ? quantidadeMinimaAtacado : null,
-        quantidade
+        quantidade,
+        estoqueMinimo: estoqueMinimo > 0 ? estoqueMinimo : null
       };
 
       if (isEdit) {
@@ -161,8 +166,11 @@ export default function ProductForm({
             <label>Quantidade</label>
             <input
               type="number"
-              value={quantidade}
-              onChange={(e) => setQuantity(Number(e.target.value))}
+              // 0 vira campo vazio com placeholder (some ao clicar) em vez
+              // de mostrar um "0" fixo que parece digitado.
+              value={quantidade === 0 ? "" : quantidade}
+              placeholder="0"
+              onChange={(e) => setQuantity(e.target.value === "" ? 0 : Number(e.target.value))}
               required
               className="input"
             />
@@ -183,8 +191,20 @@ export default function ProductForm({
             <input
               type="number"
               min={0}
-              value={quantidadeMinimaAtacado}
-              onChange={(e) => setQuantidadeMinimaAtacado(Number(e.target.value))}
+              value={quantidadeMinimaAtacado === 0 ? "" : quantidadeMinimaAtacado}
+              onChange={(e) => setQuantidadeMinimaAtacado(e.target.value === "" ? 0 : Number(e.target.value))}
+              className="input"
+              placeholder="Ex: 10"
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Alerta de estoque baixo (opcional)</label>
+            <input
+              type="number"
+              min={0}
+              value={estoqueMinimo === 0 ? "" : estoqueMinimo}
+              onChange={(e) => setEstoqueMinimo(e.target.value === "" ? 0 : Number(e.target.value))}
               className="input"
               placeholder="Ex: 10"
             />

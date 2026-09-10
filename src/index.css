@@ -101,6 +101,42 @@ body {
   color: var(--color-gold-light);
 }
 
+/* Sino de alerta de estoque baixo, só aparece quando há algo pra avisar. */
+.low-stock-bell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 15px;
+  padding: 4px;
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.low-stock-bell:hover {
+  color: var(--color-danger);
+  transform: scale(1.08);
+}
+
+.low-stock-bell__badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--color-danger);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+}
+
 /* ========================
    CARD
 ======================== */
@@ -513,6 +549,27 @@ body {
   transform: translateY(-4px);
   box-shadow: 0 4px 16px rgba(212, 175, 55, 0.15);
   border-color: var(--color-border-strong);
+}
+
+/* Estoque baixo: card com borda/realce vermelho, chamando atenção sem
+   depender só da mensagem de texto. */
+.product-card--low-stock {
+  border-color: var(--color-danger);
+}
+
+.product-card--low-stock:hover {
+  border-color: var(--color-danger-dark);
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.2);
+}
+
+.low-stock-message {
+  margin: 12px 0 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(239, 68, 68, 0.12);
+  color: #fca5a5;
+  font-size: 0.85rem;
+  font-weight: 600;
 }
 
 .product-card-header {
