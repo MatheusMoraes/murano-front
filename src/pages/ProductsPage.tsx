@@ -45,6 +45,10 @@ export default function ProductsPage() {
 
   async function handleSaved() {
     await loadProducts(); // atualiza lista
+    // Avisa o sino de estoque baixo no header (que não sabe, por conta
+    // própria, que um produto mudou) pra ele recalcular na hora em vez de
+    // esperar o próximo polling.
+    window.dispatchEvent(new CustomEvent("products:changed"));
     setMessage({
       text: selectedProduct
         ? "Produto atualizado com sucesso!"
@@ -62,6 +66,7 @@ export default function ProductsPage() {
       type: "delete",
     });
     loadProducts();
+    window.dispatchEvent(new CustomEvent("products:changed"));
     // auto-dismiss after 3s
     setTimeout(() => setMessage(null), 3000);
   }

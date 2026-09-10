@@ -102,12 +102,15 @@ body {
 }
 
 /* Sino de alerta de estoque baixo, só aparece quando há algo pra avisar. */
-.low-stock-bell {
+.low-stock-bell-wrapper {
   position: relative;
+  margin-right: 15px;
+}
+
+.low-stock-bell {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 15px;
   padding: 4px;
   background: none;
   border: none;
@@ -135,6 +138,52 @@ body {
   font-weight: 700;
   line-height: 16px;
   text-align: center;
+}
+
+/* Painel que abre ao clicar no sino, com a mensagem de alerta visível de
+   verdade (não só um title de hover). */
+.low-stock-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 1100;
+  width: 260px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-danger);
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  animation: fadeIn 0.2s ease;
+}
+
+.low-stock-dropdown--ok {
+  border-color: var(--color-border);
+}
+
+.low-stock-dropdown__message {
+  display: block;
+  width: 100%;
+  padding: 14px 16px;
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--color-text);
+  border: none;
+  text-align: left;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.low-stock-dropdown__message:hover {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+/* Estado "tudo certo": mesma caixa, sem vermelho e sem parecer clicável. */
+.low-stock-dropdown__message--ok {
+  background: var(--color-surface-alt);
+  color: var(--color-text-muted);
+  cursor: default;
+  margin: 0;
 }
 
 /* ========================
