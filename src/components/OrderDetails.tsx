@@ -223,7 +223,7 @@ export default function OrderDetails({ orderId, refreshTrigger = 0, compact = fa
       {compact ? (
         <p><b>Endereço de entrega:</b> {enderecoEntrega || "-"}</p>
       ) : (
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <div className="client-details">
           <p><b>Cliente:</b> {order.nomeCliente}</p>
           <p><b>Cep:</b> {order.cep}</p>
           <p><b>Rua:</b> {order.rua}</p>
@@ -237,29 +237,31 @@ export default function OrderDetails({ orderId, refreshTrigger = 0, compact = fa
 
       <hr style={{ height: "0.3px", color: "#8080800d" }} />
 
-      <table className="table">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Produto</th>
-            <th>Quantidade</th>
-            <th>Preço Unit.</th>
-            <th>Total</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {order.items.map((item, index) => (
-            <tr key={index}>
-              <td>{index + 1}</td>
-              <td>{item.nomeProduto}</td>
-              <td>{item.quantidade}</td>
-              <td>{formatCurrency(item.precoUnitario)}</td>
-              <td>{formatCurrency(item.total)}</td>
+      <div className="table-responsive">
+        <table className="table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Produto</th>
+              <th>Quantidade</th>
+              <th>Preço Unit.</th>
+              <th>Total</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+
+          <tbody>
+            {order.items.map((item, index) => (
+              <tr key={index}>
+                <td>{index + 1}</td>
+                <td>{item.nomeProduto}</td>
+                <td>{item.quantidade}</td>
+                <td>{formatCurrency(item.precoUnitario)}</td>
+                <td>{formatCurrency(item.total)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       <div className="actions" style={{ marginTop: 10 }}>
         <button onClick={exportToCSV} className="btn secondary">

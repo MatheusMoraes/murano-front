@@ -76,9 +76,9 @@ export default function ClientList() {
 
   return (
     <div className="clients-container">
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
+      <div className="page-header">
         <h2 className="clients-title">Clientes</h2>
-        <button className="btn-primary" style={{ width: "300px", height: "48px" }} onClick={handleCreate}>
+        <button className="btn-primary btn-primary-lg" onClick={handleCreate}>
           + Novo Cliente
         </button>
       </div>

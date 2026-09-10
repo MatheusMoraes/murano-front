@@ -1,16 +1,20 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
 import MoneyInput from "../components/MoneyInput";
 import api from "../api/api";
 import type { Product } from "../types/products";
+import { normalizeName } from "../utils/normalizeName";
 
 interface ProductFormProps {
   product?: Product | null;
+  existingProducts: Product[];
   onSaved: () => Promise<void> | void;
   onClose: () => void;
 }
 
 export default function ProductForm({
   product,
+  existingProducts,
   onSaved,
   onClose,
 }: ProductFormProps) {
@@ -76,6 +80,17 @@ export default function ProductForm({
       return;
     }
 
+    // Nome duplicado (ignorando maiúsculas/minúsculas e espaçamento) não é
+    // permitido — mesma regra aplicada no backend.
+    const nomeNormalizado = normalizeName(nome);
+    const duplicado = existingProducts.some(
+      (p) => p.id !== product?.id && normalizeName(p.nome) === nomeNormalizado
+    );
+    if (duplicado) {
+      setMessage({ text: `Já existe um produto chamado "${nome.trim()}".`, type: "error" });
+      return;
+    }
+
     try {
       setLoading(true);
 
@@ -104,7 +119,9 @@ export default function ProductForm({
       }, 1200);
     } catch (error) {
       console.error("Erro ao salvar produto", error);
-      const errMsg = "Erro ao salvar produto";
+      const errMsg = axios.isAxiosError(error) && typeof error.response?.data === "string"
+        ? error.response.data
+        : "Erro ao salvar produto";
       setMessage({ text: errMsg, type: "error" });
     } finally {
       setLoading(false);

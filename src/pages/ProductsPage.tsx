@@ -68,22 +68,25 @@ export default function ProductsPage() {
 
   return (
     <div className="products-page">
-      <div className="products-header">
-        <h1>Produtos</h1>
-        <button className="btn-primary" onClick={handleCreate}>
-          + Novo Produto
-        </button>
-      </div>
+      <div className="products-container">
+        <div className="page-header">
+          <h2 className="products-title">Produtos</h2>
+          <button className="btn-primary btn-primary-lg" onClick={handleCreate}>
+            + Novo Produto
+          </button>
+        </div>
 
-      <ProductList
-        products={products}
-        onEdit={handleEdit}
-        onDeleted={handleDeleted}
-      />
+        <ProductList
+          products={products}
+          onEdit={handleEdit}
+          onDeleted={handleDeleted}
+        />
+      </div>
 
       {(isCreating || selectedProduct) && (
         <ProductForm
           product={selectedProduct}
+          existingProducts={products}
           onSaved={handleSaved}
           onClose={handleClose}
         />

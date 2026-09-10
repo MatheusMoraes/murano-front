@@ -277,13 +277,16 @@ export default function AddProductModal({
               </p>
             )}
 
-            <label className="checkbox-field" style={{ width: "100%" }}>
+            <label className="checkbox-field">
               <input
                 type="checkbox"
                 checked={usarEnderecoDiferente}
                 onChange={e => setUsarEnderecoDiferente(e.target.checked)}
               />
-              Usar um endereço diferente do cadastro do cliente para este pedido
+              <span className="checkbox-box" aria-hidden="true" />
+              <span className="checkbox-text">
+                Usar um endereço diferente do cadastro do cliente para este pedido
+              </span>
             </label>
 
             {usarEnderecoDiferente && (

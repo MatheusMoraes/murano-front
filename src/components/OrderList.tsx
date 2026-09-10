@@ -146,9 +146,9 @@ export default function OrderList() {
 
   return (
     <div className="orders-container">
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
+      <div className="page-header">
         <h2 className="orders-title">Pedidos</h2>
-        <button className="btn-primary" style={{ width: "300px", height: "48px" }} onClick={handleCreate}>
+        <button className="btn-primary btn-primary-lg" onClick={handleCreate}>
           + Novo Pedido
         </button>
       </div>

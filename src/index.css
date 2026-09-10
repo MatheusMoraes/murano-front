@@ -202,6 +202,15 @@ body {
 .actions {
   display: flex;
   gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Wrapper que permite tabelas largas rolarem horizontalmente em telas
+   estreitas, em vez de estourar o layout. */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* ========================
@@ -212,6 +221,9 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
 }
 
 .page-header h2 {
@@ -220,9 +232,19 @@ body {
   color: var(--color-text);
 }
 
+/* Botão "+ Novo X" das telas de lista (Pedidos/Clientes/Produtos) */
+.btn-primary-lg {
+  width: 300px;
+  height: 48px;
+}
+
 /* ========================
    ORDERS
 ======================== */
+
+.orders-page {
+  padding: 24px;
+}
 
 .orders-container {
   background: var(--color-surface);
@@ -446,16 +468,20 @@ body {
   padding: 24px;
 }
 
-.products-header {
+.products-container {
+  background: var(--color-surface);
+  border-radius: 16px;
+  padding: 24px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
-.products-header .btn-primary {
-  padding: 10px 20px;
-  font-size: 1rem;
+.products-title {
+  margin-bottom: 20px;
+  font-weight: 600;
+  color: var(--color-text);
 }
 
 .products-layout {
@@ -767,9 +793,20 @@ body {
     gap: 10px;
   }
 
+  /* Em telas menores o menu horizontal com quebra de linha ocupa bem menos
+     espaço vertical do que empilhar os links (o que a regra de 992px faz
+     para tablets), então volta a ser uma linha aqui. */
+  .nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
+    gap: 8px 20px;
+  }
+
   .products-page,
   .orders-container,
   .clients-container,
+  .products-container,
   .product-form {
     padding: 16px;
   }
@@ -779,6 +816,10 @@ body {
   .btn-toggle {
     font-size: 0.8rem;
     padding: 6px 10px;
+  }
+
+  .product-form-box {
+    width: min(400px, 100vw);
   }
 }
 
@@ -814,5 +855,60 @@ body {
   .btn-toggle {
     font-size: 0.75rem;
     padding: 6px 8px;
+  }
+
+  .header h1 {
+    font-size: 16px;
+  }
+
+  .header-brand img {
+    height: 34px;
+    width: 34px;
+  }
+
+  /* Botão "+ Novo X" vira largura total e o título fica acima dele. */
+  .btn-primary-lg {
+    width: 100%;
+    height: 44px;
+  }
+
+  .page-header {
+    align-items: stretch;
+  }
+
+  /* Cliente/Pedido/Produto/Total etc. de OrderDetails e ClientDetails:
+     empilha em vez de espremer tudo numa linha só. */
+  .client-details {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  /* Botões de cada card (Detalhe/Editar/Excluir) crescem para ocupar a
+     largura toda e quebram linha em vez de ficarem espremidos. */
+  .order-buttons,
+  .client-buttons {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .order-buttons button,
+  .client-buttons button {
+    flex: 1 1 auto;
+    padding: 10px 8px !important;
+    min-width: 0;
+  }
+
+  .table th,
+  .table td {
+    padding: 10px 6px;
+    font-size: 0.85rem;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .form-actions button {
+    width: 100%;
   }
 }

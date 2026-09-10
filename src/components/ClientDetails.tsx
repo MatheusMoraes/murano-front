@@ -51,6 +51,7 @@ export default function ClientDetails({ clientId, refreshTrigger = 0 }: Props) {
       {client.orders.length === 0 ? (
         <p>Este cliente ainda não fez nenhum pedido.</p>
       ) : (
+        <div className="table-responsive">
         <table className="table client-orders-table">
           <thead>
             <tr>
@@ -90,6 +91,7 @@ export default function ClientDetails({ clientId, refreshTrigger = 0 }: Props) {
             })}
           </tbody>
         </table>
+        </div>
       )}
     </>
   );

@@ -69,20 +69,83 @@
   flex-wrap: wrap;
 }
 
+/* Checkbox customizado: um "cartão" clicável inteiro (não só o quadradinho),
+   com caixa própria desenhada em CSS — evita depender do checkbox nativo do
+   navegador (que varia de estilo entre eles) e do foco genérico de
+   .modal-content input:focus, que era pensado para inputs de texto e
+   deixava o checkbox com uma borda/realce estranho ao redor. */
 .checkbox-field {
+  position: relative;
   display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-bg);
   color: var(--color-text);
+  font-size: 14px;
+  line-height: 1.4;
   cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
 }
 
+.checkbox-field:hover {
+  border-color: var(--color-border-strong);
+  background: var(--color-surface-alt);
+}
+
+.checkbox-field:has(input:checked) {
+  border-color: var(--color-gold);
+  background: rgba(212, 175, 55, 0.08);
+}
+
+/* Input real fica presente (acessível/focável por teclado) só que invisível;
+   quem aparece visualmente é o .checkbox-box logo depois dele. */
 .checkbox-field input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
-  accent-color: var(--color-gold);
-  cursor: pointer;
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  margin: 0;
+}
+
+.checkbox-box {
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  border: 2px solid var(--color-border-strong);
+  border-radius: 5px;
+  background: var(--color-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.checkbox-field input[type="checkbox"]:checked + .checkbox-box {
+  background: var(--gradient-gold);
+  border-color: var(--color-gold);
+}
+
+.checkbox-field input[type="checkbox"]:checked + .checkbox-box::after {
+  content: "";
+  width: 5px;
+  height: 9px;
+  margin-top: -2px;
+  border: solid #171512;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.checkbox-field input[type="checkbox"]:focus-visible + .checkbox-box {
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.35);
+}
+
+.checkbox-text {
+  flex: 1 1 auto;
 }
 
 .modal-form select,
@@ -275,7 +338,8 @@
   color: var(--color-text);
 }
 
-.modal-content input:focus,
+.modal-content input[type="text"]:focus,
+.modal-content input[type="number"]:focus,
 .modal-content select:focus {
   outline: none;
   border-color: var(--color-gold);
