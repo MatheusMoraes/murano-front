@@ -5,7 +5,9 @@ export interface Product {
 }
 
 export interface OrderItem {
-  produtoId: number;
+  // Nulo quando o produto já foi excluído depois da compra — o nome fica
+  // preservado em nomeProduto independente disso.
+  produtoId: number | null;
   nomeProduto: string;
   quantidade: number;
   precoUnitario: number;

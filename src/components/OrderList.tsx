@@ -108,7 +108,21 @@ export default function OrderList() {
   async function handleEditOrder(id: number) {
     try {
       const resp = await api.get<Order>(`/orders/${id}`);
-      setOrderItems(resp.data.items || []);
+      const items = resp.data.items || [];
+      // Item cujo produto já foi excluído não tem mais como ser reenviado
+      // (não existe produtoId válido pra apontar) — fica de fora da edição.
+      // O nome/valor dele continuam preservados na visualização do pedido,
+      // só não pode mais ser reincluído ao salvar uma edição.
+      const editableItems = items.filter(
+        (item): item is typeof item & { produtoId: number } => item.produtoId != null
+      );
+      if (editableItems.length < items.length) {
+        setErrorMsg(
+          "Este pedido tinha item(ns) de produto(s) já excluído(s) — eles não puderam ser incluídos na edição."
+        );
+        setTimeout(() => setErrorMsg(null), 6000);
+      }
+      setOrderItems(editableItems);
       // O endereço já vem resolvido no pedido; tratamos como "endereço
       // diferente" pré-preenchido para não perder o que foi salvo. O
       // usuário pode desmarcar o checkbox para voltar a usar o endereço
