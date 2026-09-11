@@ -4,34 +4,10 @@ import type {
   Order
 } from "../types/order";
 import { formatCurrency } from "../utils/formatCurrency";
+import { PDF_COLORS, imageUrlToBase64 } from "../utils/pdf";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import logoUrl from "../assets/logo.png";
-
-// Paleta da marca (mesmas cores de src/index.css), em RGB para uso no jsPDF.
-const PDF_COLORS = {
-  surface: [23, 21, 27] as [number, number, number],       // --color-surface
-  gold: [212, 175, 55] as [number, number, number],        // --color-gold
-  goldDark: [156, 122, 30] as [number, number, number],    // --color-gold-dark
-  goldLight: [243, 217, 139] as [number, number, number],  // --color-gold-light
-  goldTint: [250, 243, 224] as [number, number, number],   // fundo leve com tom de ouro
-  text: [241, 233, 210] as [number, number, number],       // --color-text
-  textDark: [23, 21, 18] as [number, number, number],      // texto sobre fundo dourado
-  textMuted: [120, 108, 78] as [number, number, number],   // --color-text-muted (ajustado p/ fundo branco)
-};
-
-// Converte a logo importada (URL do bundle) em data URL, formato aceito
-// pelo jsPDF via doc.addImage.
-async function imageUrlToBase64(url: string): Promise<string> {
-  const res = await fetch(url);
-  const blob = await res.blob();
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
-}
 
 interface Props {
   orderId: number | null;

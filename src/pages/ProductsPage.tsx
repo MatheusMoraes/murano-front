@@ -1,13 +1,20 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import api from "../api/api";
 import ProductList from "../components/ProductList";
 import ProductForm from "../components/ProductForm";
+import CatalogModal from "../components/CatalogModal";
 import type { Product } from "../types/products";
+import type { Category } from "../types/category";
+import { normalizeName } from "../utils/normalizeName";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState<number | "">("");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [showCatalogModal, setShowCatalogModal] = useState(false);
   const [message, setMessage] = useState<{
     text: string;
     type: 'success' | 'delete';
@@ -23,10 +30,30 @@ export default function ProductsPage() {
     }
   }
 
+  function loadCategories() {
+    api.get<Category[]>("/categories").then(res => setCategories(res.data));
+  }
+
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     loadProducts();
+    loadCategories();
+
+    // Uma categoria pode ser criada/editada/excluída na tela de Categorias
+    // enquanto essa página está aberta em outra aba/rota — recarrega a
+    // lista pra manter o filtro e o formulário coerentes.
+    window.addEventListener("categories:changed", loadCategories);
+    return () => window.removeEventListener("categories:changed", loadCategories);
   }, []);
+
+  const filteredProducts = useMemo(() => {
+    const termo = normalizeName(searchTerm);
+    return products.filter(p => {
+      const matchesSearch = !termo || normalizeName(p.nome).includes(termo);
+      const matchesCategory = categoryFilter === "" || p.categoriaId === categoryFilter;
+      return matchesSearch && matchesCategory;
+    });
+  }, [products, searchTerm, categoryFilter]);
 
   function handleCreate() {
     setSelectedProduct(null);
@@ -81,17 +108,54 @@ export default function ProductsPage() {
           </button>
         </div>
 
+        <div className="products-filters">
+        
+          <input
+            type="text"
+            className="input"
+            placeholder="Buscar produto pelo nome..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <select
+            className="input"
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value ? Number(e.target.value) : "")}
+          >
+            <option value="">Todas as categorias</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>{c.nome}</option>
+            ))}
+          </select>
+          <button
+            type="button"
+            className="btn-outline"
+            onClick={() => setShowCatalogModal(true)}
+          >
+            📄 Gerar Catálogo
+          </button>
+        </div>
+
         <ProductList
-          products={products}
+          products={filteredProducts}
           onEdit={handleEdit}
           onDeleted={handleDeleted}
         />
       </div>
 
+      {showCatalogModal && (
+        <CatalogModal
+          categories={categories}
+          products={products}
+          onClose={() => setShowCatalogModal(false)}
+        />
+      )}
+
       {(isCreating || selectedProduct) && (
         <ProductForm
           product={selectedProduct}
           existingProducts={products}
+          categories={categories}
           onSaved={handleSaved}
           onClose={handleClose}
         />

@@ -4,6 +4,7 @@ import type { Client } from "../types/client";
 import type { EnderecoInput } from "../types/order";
 import { getUnitPrice, isAtacado } from "../utils/pricing";
 import { formatCurrency } from "../utils/formatCurrency";
+import SearchableSelect from "./SearchableSelect";
 import "./AddProductModal.css";
 
 interface OrderItemLocal {
@@ -257,17 +258,15 @@ export default function AddProductModal({
         {/* Step 1 - Dados do cliente */}
         {step === 1 && (
           <div className="modal-form">
-            <select
-              value={clientId ?? ""}
-              onChange={e => setClientId(e.target.value ? Number(e.target.value) : undefined)}
-            >
-              <option value="">Selecione um cliente</option>
-              {clients.map(client => (
-                <option key={client.id} value={client.id}>
-                  {client.nome}
-                </option>
-              ))}
-            </select>
+            <SearchableSelect
+              items={clients}
+              value={clientId}
+              onChange={setClientId}
+              getId={(c) => c.id}
+              getLabel={(c) => c.nome}
+              getSubLabel={(c) => c.telefone ?? undefined}
+              placeholder="Buscar cliente pelo nome..."
+            />
 
             {selectedClient && (
               <p className="client-sub" style={{ width: "100%", margin: "4px 0" }}>
@@ -349,17 +348,17 @@ export default function AddProductModal({
         {step === 2 && (
           <>
             <div className="modal-form">
-              <select
-                value={selectedProductId ?? ""}
-                onChange={e => setSelectedProductId(Number(e.target.value))}
-              >
-                <option value="">Selecione um produto</option>
-                {products.map(prod => (
-                  <option key={prod.id} value={prod.id}>
-                    {prod.nome}
-                  </option>
-                ))}
-              </select>
+              <SearchableSelect
+                items={products}
+                value={selectedProductId}
+                onChange={setSelectedProductId}
+                getId={(p) => p.id}
+                getLabel={(p) => p.nome}
+                getSubLabel={(p) => p.precoAtacado != null
+                  ? `Varejo: ${formatCurrency(p.precoVarejo)} · Atacado: ${formatCurrency(p.precoAtacado)}`
+                  : `Varejo: ${formatCurrency(p.precoVarejo)}`}
+                placeholder="Buscar produto pelo nome..."
+              />
               <input
                 type="number"
                 min={1}

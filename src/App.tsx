@@ -3,6 +3,7 @@ import { Routes, Route, Link, Navigate, useNavigate } from "react-router-dom";
 import OrdersPage from "./pages/OrdersPage";
 import ProductsPage from "./pages/ProductsPage";
 import ClientsPage from "./pages/ClientsPage";
+import CategoriesPage from "./pages/CategoriesPage";
 import LoginPage from "./pages/LoginPage";
 import PrivateRoute from "./components/PrivateRoute";
 import { useAuth } from "./contexts/AuthContext";
@@ -128,6 +129,9 @@ function AuthenticatedApp() {
           <Link to="/products" style={{ marginRight: 15 }}>
             Produtos
           </Link>
+          <Link to="/categories" style={{ marginRight: 15 }}>
+            Categorias
+          </Link>
 
           {/* O ícone fica sempre visível, tenha ou não alerta no momento —
               só o badge e o conteúdo do painel mudam conforme lowStockCount. */}
@@ -181,6 +185,7 @@ function AuthenticatedApp() {
         <Route path="/" element={<PrivateRoute><OrdersPage /></PrivateRoute>} />
         <Route path="/clients" element={<PrivateRoute><ClientsPage /></PrivateRoute>} />
         <Route path="/products" element={<PrivateRoute><ProductsPage /></PrivateRoute>} />
+        <Route path="/categories" element={<PrivateRoute><CategoriesPage /></PrivateRoute>} />
         {/* Qualquer rota desconhecida cai em "/", que já é protegida pelo
             PrivateRoute — se não estiver logado, redireciona pro /login em
             vez de mostrar o cabeçalho com uma área de conteúdo em branco. */}

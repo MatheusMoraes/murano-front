@@ -27,24 +27,41 @@ export default function ProductList({ products, onEdit, onDeleted }: Props) {
           key={product.id}
           className={`product-card ${product.estoqueBaixo ? "product-card--low-stock" : ""}`}
         >
-          <div className="product-card-header">
-            <h3>{product.nome}</h3>
-          </div>
+          {product.imagemUrl ? (
+            <img
+              className="product-card-image"
+              src={product.imagemUrl}
+              alt={product.nome}
+            />
+          ) : (
+            <div className="product-card-image product-card-image--placeholder">
+              <span>Sem foto</span>
+            </div>
+          )}
 
           <div className="product-card-body">
-            <div className="product-info">
-              <p><strong>Estoque:</strong> {product.quantidade}</p>
-              <p><strong>Preço Varejo:</strong> {formatCurrency(product.precoVarejo)}</p>
+            <p className="product-card-category">{product.categoriaNome}</p>
+            <h3 className="product-card-name">{product.nome}</h3>
+
+            <div className="product-card-prices">
+              <p className="product-card-price product-card-price--varejo">
+                <span className="price-tag">Varejo</span> {formatCurrency(product.precoVarejo)}
+              </p>
               {product.precoAtacado != null && product.quantidadeMinimaAtacado != null && (
-                <p>
-                  <strong>Preço Atacado:</strong> {formatCurrency(product.precoAtacado)}
-                  {" "}(a partir de {product.quantidadeMinimaAtacado} un.)
+                <p className="product-card-price product-card-price--atacado">
+                  <span className="price-tag">Atacado</span> {formatCurrency(product.precoAtacado)}
+                  <span className="price-hint"> (≥{product.quantidadeMinimaAtacado} un.)</span>
                 </p>
               )}
             </div>
+
+            <div className="product-info">
+              <p>Estoque: {product.quantidade}</p>
+            </div>
+
             {product.estoqueBaixo && (
               <p className="low-stock-message">
-                ⚠ {product.quantidade} {product.quantidade === 1 ? "unidade restante" : "unidades restantes"}
+                ⚠ {product.quantidade === 1 ? "1 unidade restante" : `${product.quantidade} unidades restantes`}
               </p>
             )}
           </div>

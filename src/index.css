@@ -569,6 +569,26 @@ body {
   color: var(--color-text);
 }
 
+.products-filters {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.products-filters input {
+  flex: 2 1 240px;
+}
+
+.products-filters select {
+  flex: 1 1 180px;
+}
+
+.products-filters button {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
 .products-layout {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -576,17 +596,20 @@ body {
   margin-top: 24px;
 }
 
+/* Fixo em 6 colunas (em vez de auto-fill, que variava com a largura da
+   tela e passava disso em monitor grande) — os breakpoints abaixo reduzem
+   a quantidade pra caber em telas menores. */
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 14px;
   margin-top: 24px;
 }
 
 .product-card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 12px;
+  border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
   overflow: hidden;
   display: flex;
@@ -612,51 +635,118 @@ body {
 }
 
 .low-stock-message {
-  margin: 12px 0 0;
-  padding: 8px 10px;
-  border-radius: 8px;
+  margin: 6px 0 0;
+  padding: 4px 6px;
+  border-radius: 6px;
   background: rgba(239, 68, 68, 0.12);
   color: #fca5a5;
-  font-size: 0.85rem;
+  font-size: 0.7rem;
   font-weight: 600;
 }
 
-.product-card-header {
+/* Imagem quadrada tipo marketplace (AliExpress/Shopee/Mercado Livre): o
+   card fica dominado pela foto, com bem menos texto embaixo. */
+.product-card-image {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  object-position: center;
+  display: block;
   background: var(--color-surface-alt);
-  padding: 16px;
   border-bottom: 1px solid var(--color-border);
 }
 
-.product-card-header h3 {
-  margin: 0;
-  font-size: 1.1rem;
-  color: var(--color-text);
+.product-card-image--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
 }
 
 .product-card-body {
-  padding: 16px;
+  padding: 8px 10px;
   flex-grow: 1;
 }
 
+.product-card-category {
+  margin: 0 0 2px;
+  font-size: 0.62rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--color-gold);
+}
+
+.product-card-name {
+  margin: 0 0 4px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--color-text);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: calc(0.82rem * 1.3 * 2);
+}
+
+.product-card-prices {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0 0 4px;
+}
+
+.product-card-price {
+  margin: 0;
+  font-weight: 700;
+}
+
+.product-card-price--varejo {
+  font-size: 1rem;
+  color: var(--color-gold-light);
+}
+
+.product-card-price--atacado {
+  font-size: 0.85rem;
+  color: var(--color-gold-dark);
+}
+
+.price-tag {
+  font-size: 0.62rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--color-text-muted);
+  margin-right: 3px;
+}
+
+.price-hint {
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
 .product-info p {
-  margin: 8px 0;
-  font-size: 0.95rem;
+  margin: 2px 0;
+  font-size: 0.72rem;
   color: var(--color-text-muted);
 }
 
 .product-card-footer {
   display: flex;
-  gap: 10px;
-  padding: 12px 16px;
+  gap: 6px;
+  padding: 6px 8px;
   border-top: 1px solid var(--color-border);
   background: var(--color-surface-alt);
 }
 
 .product-card-footer button {
   flex: 1;
-  padding: 8px 12px !important;
+  padding: 5px 6px !important;
   min-width: auto !important;
-  font-size: 0.9rem;
+  font-size: 0.72rem;
 }
 
 .product-form {
@@ -665,6 +755,21 @@ body {
   border-radius: 16px;
   border: 1px solid var(--color-border);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.product-image-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.product-image-preview img {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
 }
 
 .product-form input,
@@ -874,7 +979,7 @@ body {
   }
 
   .product-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
   }
 
   .order-header,
@@ -888,7 +993,7 @@ body {
 @media (max-width: 768px) {
 
   .product-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 
   .header {
@@ -931,17 +1036,16 @@ body {
 
 @media (max-width: 576px) {
 
+  /* Continua em grade densa no celular (tipo app de marketplace), só com
+     cards um pouco menores em vez de cair pra 1 coluna só. */
   .product-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
   }
 
   .products-layout {
     grid-template-columns: 1fr;
     gap: 12px;
-  }
-
-  .product-card {
-    padding: 12px;
   }
 
   .order-card,
