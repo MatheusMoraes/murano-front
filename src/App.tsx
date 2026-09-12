@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Routes, Route, Link, Navigate, useNavigate } from "react-router-dom";
 import OrdersPage from "./pages/OrdersPage";
+import DashboardPage from "./pages/DashboardPage";
 import ProductsPage from "./pages/ProductsPage";
 import ClientsPage from "./pages/ClientsPage";
 import CategoriesPage from "./pages/CategoriesPage";
@@ -121,6 +122,9 @@ function AuthenticatedApp() {
 
         <nav className="nav">
           <Link to="/" style={{ marginRight: 15 }}>
+            Dashboard
+          </Link>
+          <Link to="/orders" style={{ marginRight: 15 }}>
             Pedidos
           </Link>
           <Link to="/clients" style={{ marginRight: 15 }}>
@@ -182,7 +186,8 @@ function AuthenticatedApp() {
       </header>
 
       <Routes>
-        <Route path="/" element={<PrivateRoute><OrdersPage /></PrivateRoute>} />
+        <Route path="/" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
+        <Route path="/orders" element={<PrivateRoute><OrdersPage /></PrivateRoute>} />
         <Route path="/clients" element={<PrivateRoute><ClientsPage /></PrivateRoute>} />
         <Route path="/products" element={<PrivateRoute><ProductsPage /></PrivateRoute>} />
         <Route path="/categories" element={<PrivateRoute><CategoriesPage /></PrivateRoute>} />

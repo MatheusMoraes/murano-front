@@ -25,19 +25,24 @@ export async function imageUrlToBase64(url: string): Promise<string> {
   });
 }
 
-// Carrega uma foto de produto (URL externa da Cloudinary) sempre como JPEG
-// já redimensionada — evita ter que detectar na mão se o original é
-// PNG/WEBP/GIF (o jsPDF lida melhor com JPEG) e mantém o PDF leve mesmo com
-// muitas fotos no catálogo.
-export function loadImageAsJpegDataUrl(url: string, maxSize = 500): Promise<string> {
+// Carrega uma foto de produto (URL externa da Cloudinary) já recortada em
+// quadrado (recorte central, tipo object-fit:cover) e como JPEG — o
+// catálogo sempre desenha a foto num quadrado, e o jsPDF não tem "cover":
+// se mandássemos a imagem inteira (as fotos são 720x1280, retrato), ele
+// simplesmente estica pra caber no quadrado, distorcendo e perdendo
+// nitidez. Recortando pro quadrado aqui, com o lado do recorte batendo
+// com o lado menor da imagem original (720px), sai exatamente na
+// resolução nativa — nem estica, nem faz upscale à toa.
+export function loadImageAsJpegDataUrl(url: string, size = 720): Promise<string> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.onload = () => {
-      const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
+      // Não faz upscale além do que a imagem original tem.
+      const outSize = Math.min(size, img.width, img.height);
       const canvas = document.createElement("canvas");
-      canvas.width = Math.max(1, Math.round(img.width * scale));
-      canvas.height = Math.max(1, Math.round(img.height * scale));
+      canvas.width = outSize;
+      canvas.height = outSize;
       const ctx = canvas.getContext("2d");
       if (!ctx) {
         reject(new Error("Canvas indisponível"));
@@ -46,9 +51,14 @@ export function loadImageAsJpegDataUrl(url: string, maxSize = 500): Promise<stri
       // JPEG não tem canal alfa — pinta fundo branco antes de desenhar por
       // segurança, caso a imagem original tenha transparência.
       ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      resolve(canvas.toDataURL("image/jpeg", 0.85));
+      ctx.fillRect(0, 0, outSize, outSize);
+
+      const cropSize = Math.min(img.width, img.height);
+      const srcX = (img.width - cropSize) / 2;
+      const srcY = (img.height - cropSize) / 2;
+      ctx.drawImage(img, srcX, srcY, cropSize, cropSize, 0, 0, outSize, outSize);
+
+      resolve(canvas.toDataURL("image/jpeg", 0.92));
     };
     img.onerror = () => reject(new Error("Falha ao carregar imagem"));
     img.src = url;

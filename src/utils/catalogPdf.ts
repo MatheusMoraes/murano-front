@@ -10,6 +10,9 @@ const MARGIN = 14;
 const CARD_GAP = 8;
 const ROW_GAP = 10;
 const CARD_TEXT_HEIGHT = 22; // espaço reservado pro nome + preços abaixo da foto
+// Foto ~15% menor que a coluna, centralizada nela — mesmo ajuste da grade
+// de produtos no site, pra não ficar esticada até a borda da coluna.
+const IMAGE_SCALE = 0.85;
 
 // Catálogo em PDF, agrupado por categoria (com a descrição de cada uma),
 // com foto + preços de cada produto. Pensado pra ser mandado direto pro
@@ -20,7 +23,8 @@ export async function generateCatalogPdf(categories: Category[], allProducts: Pr
   const pageH = doc.internal.pageSize.getHeight();
   const contentW = pageW - MARGIN * 2;
   const cardW = (contentW - (COLUMNS - 1) * CARD_GAP) / COLUMNS;
-  const imgSize = cardW;
+  const imgSize = cardW * IMAGE_SCALE;
+  const imgOffset = (cardW - imgSize) / 2; // centraliza a foto dentro da coluna
   const cardH = imgSize + CARD_TEXT_HEIGHT;
 
   let logoBase64: string | null = null;
@@ -33,7 +37,9 @@ export async function generateCatalogPdf(categories: Category[], allProducts: Pr
   const groups = categories
     .map((categoria) => ({
       categoria,
-      produtos: allProducts.filter((p) => p.categoriaId === categoria.id),
+      produtos: allProducts
+        .filter((p) => p.categoriaId === categoria.id)
+        .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR")),
     }))
     .filter((g) => g.produtos.length > 0);
 
@@ -137,7 +143,7 @@ export async function generateCatalogPdf(categories: Category[], allProducts: Pr
         ensureSpace(cardH + ROW_GAP);
       }
 
-      const x = MARGIN + col * (cardW + CARD_GAP);
+      const x = MARGIN + col * (cardW + CARD_GAP) + imgOffset;
       const imageData = imageCache.get(produto.id);
 
       if (imageData) {

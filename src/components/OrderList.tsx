@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import api from "../api/api";
 import type { EnderecoInput, Order } from "../types/order";
 import OrderDetails from "./OrderDetails";
 import AddProductModal from "./AddProductModal";
 import type { Product } from "../types/products";
 import type { Client } from "../types/client";
+import { normalizeName } from "../utils/normalizeName";
+import { formatCurrency } from "../utils/formatCurrency";
 
 interface OrderItemLocal {
   produtoId: number;
@@ -37,12 +39,26 @@ export default function OrderList() {
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [customerData, setCustomerData] = useState<CustomerFormData | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     api.get<Order[]>("/orders").then(res => setOrders(res.data));
     api.get<Product[]>("/products").then(res => setProducts(res.data));
     api.get<Client[]>("/clients").then(res => setClients(res.data));
   }, []);
+
+  // Filtra pelo nome do cliente ou pelo número do pedido ("#12" ou "12"
+  // batem no pedido 12) — cobre tanto quem lembra do cliente quanto quem
+  // já tem o número do pedido em mãos.
+  const filteredOrders = useMemo(() => {
+    const termo = normalizeName(searchTerm);
+    if (!termo) return orders;
+    const termoSemHash = termo.replace(/^#/, "");
+    return orders.filter(order =>
+      normalizeName(order.nomeCliente).includes(termo) ||
+      String(order.id) === termoSemHash
+    );
+  }, [orders, searchTerm]);
 
   function toggleOrder(id: number) {
     if (expandedIds.includes(id)) {
@@ -192,13 +208,26 @@ export default function OrderList() {
         </div>
       )}
 
+      <div className="orders-filters">
+        <input
+          type="text"
+          className="input"
+          placeholder="Buscar por cliente ou número do pedido..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+
       <ul className="orders-list">
         {successMsg && (
           <div className="alert alert-success toast">
             {successMsg}
           </div>
         )}
-        {orders.map(order => {
+        {filteredOrders.length === 0 && (
+          <li className="orders-empty">Nenhum pedido encontrado.</li>
+        )}
+        {filteredOrders.map(order => {
           const isOpen = expandedIds.includes(order.id);
           const isClosing = closingIds.includes(order.id);
 
@@ -210,10 +239,10 @@ export default function OrderList() {
               <div className="order-header">
                 <div className="order-info">
                   <span className="order-id">
-                    Pedido #{order.id}
+                    Pedido #{order.id} — {order.nomeCliente}
                   </span>
                   <span className="order-date">
-                    {new Date(order.criadoEm).toLocaleDateString()}
+                    {new Date(order.criadoEm).toLocaleDateString()} · {formatCurrency(order.valorTotal)}
                   </span>
                 </div>
 
