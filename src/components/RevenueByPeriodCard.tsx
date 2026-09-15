@@ -13,16 +13,16 @@ const PERIODOS: { key: RevenuePeriodKey; label: string }[] = [
   { key: "ano", label: "Último ano" },
 ];
 
-// Dimensões do viewBox — o SVG escala via CSS (width: 100%), isso é só a
-// unidade interna usada pros cálculos de posição dos pontos. Bem mais baixo
-// que largura cheia, pra ficar do tamanho do card de produtos mais caros
-// ao lado (um card compacto, não um gráfico de tela cheia).
+// Dimensões do viewBox — o SVG escala via CSS (width: 100%; height: auto),
+// preservando a proporção do viewBox (sem preserveAspectRatio="none": isso
+// esticava texto e círculos de forma desigual sempre que a caixa não tinha
+// exatamente essa proporção — números e marcadores saíam deformados).
 const W = 480;
-const H = 95;
-const PAD_LEFT = 44;
-const PAD_RIGHT = 8;
+const H = 100;
+const PAD_LEFT = 36;
+const PAD_RIGHT = 6;
 const PAD_TOP = 8;
-const PAD_BOTTOM = 16;
+const PAD_BOTTOM = 18;
 const PLOT_W = W - PAD_LEFT - PAD_RIGHT;
 const PLOT_H = H - PAD_TOP - PAD_BOTTOM;
 
@@ -169,6 +169,7 @@ export default function RevenueByPeriodCard({ produtosMaisCaros }: Props) {
   const gridValues = [0, max / 2, max];
 
   const maxPrecoCaro = Math.max(1, ...produtosMaisCaros.map((p) => p.precoVarejo));
+  const variacao = data?.variacaoPercentual ?? null;
 
   return (
     <div className="revenue-cards-row">
@@ -261,7 +262,7 @@ export default function RevenueByPeriodCard({ produtosMaisCaros }: Props) {
                   <text
                     key={idx}
                     x={coords[idx].x}
-                    y={H - 6}
+                    y={H - 3}
                     className="revenue-axis-label"
                     textAnchor="middle"
                   >
@@ -278,7 +279,7 @@ export default function RevenueByPeriodCard({ produtosMaisCaros }: Props) {
                   <circle
                     cx={coords[coords.length - 1].x}
                     cy={coords[coords.length - 1].y}
-                    r={4}
+                    r={3.5}
                     className="revenue-end-dot"
                   />
                 )}
@@ -293,7 +294,7 @@ export default function RevenueByPeriodCard({ produtosMaisCaros }: Props) {
                       y2={PAD_TOP + PLOT_H}
                       className="revenue-crosshair"
                     />
-                    <circle cx={hovered.x} cy={hovered.y} r={4} className="revenue-hover-dot" />
+                    <circle cx={hovered.x} cy={hovered.y} r={3.5} className="revenue-hover-dot" />
                   </>
                 )}
               </svg>
@@ -321,7 +322,7 @@ export default function RevenueByPeriodCard({ produtosMaisCaros }: Props) {
           diferente do ranking "Produtos mais vendidos" mais abaixo, que
           ordena por quantidade). Sempre all-time, não segue o filtro de
           período do gráfico ao lado. */}
-      <section className="ranking-card revenue-metrics-card">
+      <section className="ranking-card">
         <h3 className="ranking-title">Produtos mais caros vendidos</h3>
         {produtosMaisCaros.length === 0 ? (
           <p className="ranking-empty">Nenhum produto vendido ainda.</p>
@@ -338,6 +339,39 @@ export default function RevenueByPeriodCard({ produtosMaisCaros }: Props) {
           </ul>
         )}
       </section>
+
+      {/* Terceiro card: métricas complementares do mesmo período/filtro do
+          gráfico — volume de pedidos, ticket médio e a comparação com o
+          período equivalente anterior (contexto que a linha de tendência
+          sozinha não transmite: subiu 12%, mas é 1 pedido a mais ou dez?). */}
+      {!error && data && n > 0 && (
+        <section className="ranking-card">
+          <h3 className="ranking-title">Resumo do período</h3>
+          <div className="revenue-metrics-grid">
+            <div className="revenue-side-stat">
+              <span className="revenue-side-stat-label">Receita do período</span>
+              <span className="revenue-side-stat-value">{formatCurrency(data.receitaTotal)}</span>
+              {variacao != null && (
+                <span className={`revenue-delta ${variacao >= 0 ? "up" : "down"}`}>
+                  {variacao >= 0 ? "▲" : "▼"} {Math.abs(variacao).toFixed(1)}% vs. anterior
+                </span>
+              )}
+            </div>
+            <div className="revenue-side-stat">
+              <span className="revenue-side-stat-label">Pedidos no período</span>
+              <span className="revenue-side-stat-value">{data.totalPedidos}</span>
+            </div>
+            <div className="revenue-side-stat">
+              <span className="revenue-side-stat-label">Ticket médio</span>
+              <span className="revenue-side-stat-value">{formatCurrency(data.ticketMedio)}</span>
+            </div>
+            <div className="revenue-side-stat">
+              <span className="revenue-side-stat-label">Período anterior</span>
+              <span className="revenue-side-stat-value">{formatCurrency(data.receitaPeriodoAnterior)}</span>
+            </div>
+          </div>
+        </section>
+      )}
     </div>
   );
 }

@@ -592,17 +592,19 @@ body {
   white-space: nowrap;
 }
 
-/* Dois cards lado a lado, acima dos rankings: o gráfico de receita por
-   período e, separado dele, o ranking dos produtos mais caros vendidos.
-   Empilha em telas estreitas (a grade abaixo já quebra sozinha quando não
-   cabem 320px por coluna). */
+/* Três cards lado a lado, acima dos rankings: o gráfico de receita por
+   período, o ranking dos produtos mais caros vendidos e um resumo com
+   métricas complementares do período. Cada um tem sua própria altura
+   natural (align-items: start) — não force-encaixamos um no tamanho do
+   outro, isso só gerava distorção. Quebra pra 2 colunas e depois 1 conforme
+   a tela estreita (ver breakpoints 992px/576px). */
 .dashboard-revenue-section {
   margin-bottom: 20px;
 }
 
 .revenue-cards-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
   align-items: start;
 }
@@ -613,23 +615,22 @@ body {
   align-items: flex-start;
   gap: 12px;
   flex-wrap: wrap;
-  margin-bottom: 4px;
-}
-
-.revenue-card-header .ranking-title {
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .revenue-table-toggle {
   flex: 0 0 auto;
   white-space: nowrap;
+  padding: 4px 10px !important;
+  font-size: 0.72rem !important;
+  border-width: 1px !important;
 }
 
 .revenue-period-filters {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin: 14px 0 18px;
+  gap: 5px;
+  margin: 8px 0 8px;
 }
 
 .revenue-period-pill {
@@ -637,8 +638,8 @@ body {
   border: 1px solid var(--color-border);
   color: var(--color-text-muted);
   border-radius: 999px;
-  padding: 6px 14px;
-  font-size: 0.82rem;
+  padding: 3px 9px;
+  font-size: 0.68rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -664,6 +665,10 @@ body {
   opacity: 0.5;
 }
 
+/* height:auto (não um valor fixo) de propósito: o SVG escala mantendo a
+   proporção do viewBox, então nunca distorce texto/marcadores. A altura
+   varia um pouco com a largura da coluna — aceitável, o alternativa
+   (altura fixa + preserveAspectRatio="none") esticava os números. */
 .revenue-chart-svg {
   width: 100%;
   height: auto;
@@ -684,7 +689,7 @@ body {
 
 .revenue-axis-label {
   fill: var(--color-text-muted);
-  font-size: 10px;
+  font-size: 9px;
 }
 
 .revenue-area {
@@ -696,7 +701,7 @@ body {
 .revenue-line {
   fill: none;
   stroke: var(--color-gold);
-  stroke-width: 2;
+  stroke-width: 1.5;
   stroke-linejoin: round;
   stroke-linecap: round;
 }
@@ -704,7 +709,7 @@ body {
 .revenue-end-dot {
   fill: var(--color-gold);
   stroke: var(--color-surface-alt);
-  stroke-width: 2;
+  stroke-width: 1.2;
 }
 
 .revenue-crosshair {
@@ -715,7 +720,7 @@ body {
 .revenue-hover-dot {
   fill: var(--color-gold-light);
   stroke: var(--color-surface-alt);
-  stroke-width: 2;
+  stroke-width: 1.2;
 }
 
 .revenue-tooltip {
@@ -723,11 +728,11 @@ body {
   transform: translate(-50%, -125%);
   background: var(--color-surface);
   border: 1px solid var(--color-border-strong);
-  border-radius: 8px;
-  padding: 6px 10px;
+  border-radius: 6px;
+  padding: 4px 8px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
   pointer-events: none;
   white-space: nowrap;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
@@ -735,16 +740,65 @@ body {
 
 .revenue-tooltip strong {
   color: var(--color-gold-light);
-  font-size: 0.9rem;
+  font-size: 0.78rem;
 }
 
 .revenue-tooltip span {
   color: var(--color-text-muted);
-  font-size: 0.75rem;
+  font-size: 0.65rem;
 }
 
 .revenue-table td:last-child {
   text-align: right;
+}
+
+.revenue-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.revenue-side-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  background: rgba(212, 175, 55, 0.06);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+}
+
+.revenue-side-stat-label {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.revenue-side-stat-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-gold-light);
+}
+
+/* Mesmas cores de sucesso/erro usadas nos toasts do app (.alert-success /
+   .alert-error) — sobe (bom) em verde, cai (ruim) em vermelho. */
+.revenue-delta {
+  font-size: 0.72rem;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.revenue-delta.up {
+  color: #6ee7b7;
+}
+
+.revenue-delta.down {
+  color: #fca5a5;
+}
+
+@media (max-width: 992px) {
+  .revenue-cards-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 576px) {
@@ -765,9 +819,12 @@ body {
     grid-row: 2;
   }
 
-  .revenue-period-pill {
-    padding: 5px 10px;
-    font-size: 0.78rem;
+  .revenue-cards-row {
+    grid-template-columns: 1fr;
+  }
+
+  .revenue-metrics-grid {
+    grid-template-columns: 1fr;
   }
 }
 
