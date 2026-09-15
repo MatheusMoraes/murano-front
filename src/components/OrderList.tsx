@@ -62,15 +62,34 @@ export default function OrderList() {
   const [searchTerm, setSearchTerm] = useState("");
 
   function loadOrders() {
-    api.get<Order[]>("/orders").then(res => setOrders(res.data));
+    api
+      .get<Order[]>("/orders")
+      .then(res => {
+        setOrders(res.data);
+        setErrorMsg(null);
+      })
+      .catch(err => {
+        // Sem isso, uma falha na requisição (cold start do backend, sessão
+        // expirada, rede) deixava `orders` vazio silenciosamente — a tela
+        // mostrava "Nenhum pedido encontrado" como se os pedidos tivessem
+        // sumido, quando na verdade a busca nem chegou a completar.
+        console.error("Erro ao carregar pedidos:", err);
+        setErrorMsg("Não foi possível carregar os pedidos. Verifique sua conexão e tente novamente.");
+      });
   }
 
   function loadProducts() {
-    api.get<Product[]>("/products").then(res => setProducts(res.data));
+    api
+      .get<Product[]>("/products")
+      .then(res => setProducts(res.data))
+      .catch(err => console.error("Erro ao carregar produtos:", err));
   }
 
   function loadClients() {
-    api.get<Client[]>("/clients").then(res => setClients(res.data));
+    api
+      .get<Client[]>("/clients")
+      .then(res => setClients(res.data))
+      .catch(err => console.error("Erro ao carregar clientes:", err));
   }
 
   useEffect(() => {
@@ -279,7 +298,7 @@ export default function OrderList() {
             {successMsg}
           </div>
         )}
-        {filteredOrders.length === 0 && (
+        {!errorMsg && filteredOrders.length === 0 && (
           <li className="orders-empty">Nenhum pedido encontrado.</li>
         )}
         {filteredOrders.map(order => {
