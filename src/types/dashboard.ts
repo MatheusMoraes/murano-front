@@ -17,6 +17,16 @@ export interface ReceitaPorCategoria {
   receitaTotal: number;
 }
 
+// Top 5 produtos de maior preço de varejo dentre os que já venderam pelo
+// menos uma unidade — diferente de TopProduto (ordenado por quantidade),
+// mostra se os itens premium do catálogo também estão girando.
+export interface TopProdutoCaro {
+  produtoId: number;
+  nome: string;
+  precoVarejo: number;
+  quantidadeVendida: number;
+}
+
 export interface Dashboard {
   totalPedidos: number;
   receitaTotal: number;
@@ -27,4 +37,27 @@ export interface Dashboard {
   topClientes: TopCliente[];
   topProdutos: TopProduto[];
   receitaPorCategoria: ReceitaPorCategoria[];
+  produtosMaisCarosVendidos: TopProdutoCaro[];
+}
+
+// Chaves aceitas pelo filtro do card "Receita por período" — espelha
+// Services/DashboardService.cs (Periodos) no backend.
+export type RevenuePeriodKey = "30d" | "60d" | "90d" | "trimestre" | "semestre" | "ano";
+
+export interface RevenuePoint {
+  data: string; // ISO date
+  receita: number;
+}
+
+export interface RevenueByPeriod {
+  periodo: RevenuePeriodKey;
+  dataInicio: string;
+  dataFim: string;
+  granularidade: "dia" | "semana" | "mes";
+  receitaTotal: number;
+  totalPedidos: number;
+  ticketMedio: number;
+  receitaPeriodoAnterior: number;
+  variacaoPercentual: number | null;
+  pontos: RevenuePoint[];
 }

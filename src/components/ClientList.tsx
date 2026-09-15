@@ -52,6 +52,11 @@ export default function ClientList() {
 
   async function handleSaved() {
     loadClients();
+    // Cliente cadastrado/editado aqui também é usado na tela de Pedidos
+    // (seleção de cliente + comparação de endereço na edição) — avisa quem
+    // estiver escutando pra não ficar com uma cópia desatualizada em memória
+    // até a próxima navegação/reload.
+    window.dispatchEvent(new CustomEvent("clients:changed"));
     setRefreshTrigger(prev => prev + 1);
     setSuccessMsg(selectedClient ? "Cliente atualizado com sucesso!" : "Cliente cadastrado com sucesso!");
     setTimeout(() => setSuccessMsg(null), 3000);
@@ -62,6 +67,7 @@ export default function ClientList() {
     try {
       await api.delete(`/clients/${id}`);
       loadClients();
+      window.dispatchEvent(new CustomEvent("clients:changed"));
       setSuccessMsg("Cliente excluído com sucesso!");
       setTimeout(() => setSuccessMsg(null), 3000);
     } catch (err) {

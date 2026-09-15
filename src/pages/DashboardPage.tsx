@@ -2,21 +2,8 @@ import { useEffect, useState } from "react";
 import api from "../api/api";
 import type { Dashboard } from "../types/dashboard";
 import { formatCurrency } from "../utils/formatCurrency";
-
-// Barra horizontal de um único tom (dourado da marca) — usada tanto pro
-// ranking de clientes quanto de produtos. `valor` já formatado como texto
-// pra exibir ao lado da barra (contagem de pedidos, quantidade vendida...).
-function RankingBar({ label, valor, fracao }: { label: string; valor: string; fracao: number }) {
-  return (
-    <li className="ranking-bar-row">
-      <span className="ranking-bar-label" title={label}>{label}</span>
-      <div className="ranking-bar-track">
-        <div className="ranking-bar-fill" style={{ width: `${Math.max(fracao * 100, 4)}%` }} />
-      </div>
-      <span className="ranking-bar-value">{valor}</span>
-    </li>
-  );
-}
+import RevenueByPeriodCard from "../components/RevenueByPeriodCard";
+import RankingBar from "../components/RankingBar";
 
 export default function DashboardPage() {
   const [data, setData] = useState<Dashboard | null>(null);
@@ -83,6 +70,10 @@ export default function DashboardPage() {
           <span className="stat-tile-label">Estoque baixo</span>
           <span className="stat-tile-value">{data.produtosComEstoqueBaixo}</span>
         </div>
+      </div>
+
+      <div className="dashboard-revenue-section">
+        <RevenueByPeriodCard produtosMaisCaros={data.produtosMaisCarosVendidos} />
       </div>
 
       <div className="dashboard-rankings">

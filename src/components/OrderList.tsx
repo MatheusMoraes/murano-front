@@ -25,6 +25,26 @@ interface CustomerFormData {
   Complemento: string;
 }
 
+// Compara o endereço salvo no pedido com o endereço cadastrado do cliente
+// hoje — usado pra decidir se o checkbox "usar endereço diferente" deve
+// vir marcado ao abrir um pedido pra edição. Sem cliente encontrado (ex:
+// lista de clientes ainda não carregou), assume diferente por segurança:
+// melhor mostrar os campos preenchidos à toa do que perder um endereço
+// que na verdade era customizado.
+function enderecoIgualAoCliente(order: Order, client: Client | undefined): boolean {
+  if (!client) return false;
+  const norm = (v?: string | null) => (v ?? "").trim();
+  return (
+    norm(order.cep) === norm(client.cep) &&
+    norm(order.rua) === norm(client.rua) &&
+    norm(order.bairro) === norm(client.bairro) &&
+    norm(order.cidade) === norm(client.cidade) &&
+    norm(order.estado) === norm(client.estado) &&
+    norm(order.numero) === norm(client.numero) &&
+    norm(order.complemento) === norm(client.complemento)
+  );
+}
+
 export default function OrderList() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [expandedIds, setExpandedIds] = useState<number[]>([]);
@@ -41,10 +61,33 @@ export default function OrderList() {
   const [customerData, setCustomerData] = useState<CustomerFormData | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  useEffect(() => {
+  function loadOrders() {
     api.get<Order[]>("/orders").then(res => setOrders(res.data));
+  }
+
+  function loadProducts() {
     api.get<Product[]>("/products").then(res => setProducts(res.data));
+  }
+
+  function loadClients() {
     api.get<Client[]>("/clients").then(res => setClients(res.data));
+  }
+
+  useEffect(() => {
+    loadOrders();
+    loadProducts();
+    loadClients();
+
+    // Produto/cliente pode ser editado nas telas de Produtos/Clientes
+    // enquanto esta tela continua montada (SPA, sem reload) — sem isso, o
+    // modal de novo/editar pedido ficaria oferecendo preço/estoque/endereço
+    // desatualizados até a próxima navegação até aqui.
+    window.addEventListener("products:changed", loadProducts);
+    window.addEventListener("clients:changed", loadClients);
+    return () => {
+      window.removeEventListener("products:changed", loadProducts);
+      window.removeEventListener("clients:changed", loadClients);
+    };
   }, []);
 
   // Filtra pelo nome do cliente ou pelo número do pedido ("#12" ou "12"
@@ -81,8 +124,8 @@ export default function OrderList() {
   }
 
   function handleOrderCreated() {
-    api.get<Order[]>("/orders").then(res => setOrders(res.data));
-    api.get<Product[]>("/products").then(res => setProducts(res.data));
+    loadOrders();
+    loadProducts();
     // Criar/editar pedido decrementa o estoque dos produtos — avisa o sino
     // de estoque baixo no header pra ele recalcular na hora.
     window.dispatchEvent(new CustomEvent("products:changed"));
@@ -139,13 +182,25 @@ export default function OrderList() {
         setTimeout(() => setErrorMsg(null), 6000);
       }
       setOrderItems(editableItems);
-      // O endereço já vem resolvido no pedido; tratamos como "endereço
-      // diferente" pré-preenchido para não perder o que foi salvo. O
-      // usuário pode desmarcar o checkbox para voltar a usar o endereço
-      // cadastrado do cliente.
+      // O endereço do pedido vem sempre resolvido (seja o do cadastro do
+      // cliente, seja um informado à parte) — o checkbox só deve começar
+      // marcado se o endereço salvo no pedido for de fato diferente do
+      // endereço cadastrado do cliente hoje. Busca o cliente direto da API
+      // em vez de confiar na lista `clients` já carregada no state: ela é
+      // populada em paralelo no mount desta tela, e clicar em "Editar" logo
+      // após abrir a página pode acontecer antes dela terminar de chegar —
+      // nesse caso `clients` estaria vazia e a comparação sempre marcaria
+      // "diferente" por engano.
+      let usarEnderecoDiferente = true;
+      try {
+        const clientResp = await api.get<Client>(`/clients/${resp.data.clientId}`);
+        usarEnderecoDiferente = !enderecoIgualAoCliente(resp.data, clientResp.data);
+      } catch (err) {
+        console.error("Erro ao buscar cliente para comparar endereço do pedido", err);
+      }
       setCustomerData({
         ClientId: resp.data.clientId,
-        UsarEnderecoDiferente: true,
+        UsarEnderecoDiferente: usarEnderecoDiferente,
         Cep: resp.data.cep ?? "",
         Rua: resp.data.rua ?? "",
         Bairro: resp.data.bairro ?? "",
@@ -166,8 +221,8 @@ export default function OrderList() {
     if (!confirm("Tem certeza que deseja excluir este pedido?")) return;
     try {
       await api.delete(`/orders/${id}`);
-      api.get<Order[]>("/orders").then(res => setOrders(res.data));
-      api.get<Product[]>("/products").then(res => setProducts(res.data));
+      loadOrders();
+      loadProducts();
       // Excluir pedido repõe o estoque — mesmo aviso pro header.
       window.dispatchEvent(new CustomEvent("products:changed"));
       setSuccessMsg("Pedido excluído com sucesso!");

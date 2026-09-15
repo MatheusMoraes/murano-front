@@ -592,6 +592,161 @@ body {
   white-space: nowrap;
 }
 
+/* Dois cards lado a lado, acima dos rankings: o gráfico de receita por
+   período e, separado dele, o ranking dos produtos mais caros vendidos.
+   Empilha em telas estreitas (a grade abaixo já quebra sozinha quando não
+   cabem 320px por coluna). */
+.dashboard-revenue-section {
+  margin-bottom: 20px;
+}
+
+.revenue-cards-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+  align-items: start;
+}
+
+.revenue-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.revenue-card-header .ranking-title {
+  margin-bottom: 4px;
+}
+
+.revenue-table-toggle {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.revenue-period-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0 18px;
+}
+
+.revenue-period-pill {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.revenue-period-pill:hover {
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
+}
+
+.revenue-period-pill.active {
+  background: var(--gradient-gold);
+  border-color: transparent;
+  color: #171512;
+}
+
+.revenue-chart-wrap {
+  position: relative;
+  transition: opacity 0.15s ease;
+}
+
+.revenue-chart-wrap.loading {
+  opacity: 0.5;
+}
+
+.revenue-chart-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  cursor: crosshair;
+}
+
+.revenue-chart-svg:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+.revenue-gridline {
+  stroke: var(--color-border);
+  stroke-width: 1;
+}
+
+.revenue-axis-label {
+  fill: var(--color-text-muted);
+  font-size: 10px;
+}
+
+.revenue-area {
+  fill: var(--color-gold);
+  fill-opacity: 0.1;
+  stroke: none;
+}
+
+.revenue-line {
+  fill: none;
+  stroke: var(--color-gold);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.revenue-end-dot {
+  fill: var(--color-gold);
+  stroke: var(--color-surface-alt);
+  stroke-width: 2;
+}
+
+.revenue-crosshair {
+  stroke: var(--color-border-strong);
+  stroke-width: 1;
+}
+
+.revenue-hover-dot {
+  fill: var(--color-gold-light);
+  stroke: var(--color-surface-alt);
+  stroke-width: 2;
+}
+
+.revenue-tooltip {
+  position: absolute;
+  transform: translate(-50%, -125%);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 8px;
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.revenue-tooltip strong {
+  color: var(--color-gold-light);
+  font-size: 0.9rem;
+}
+
+.revenue-tooltip span {
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+}
+
+.revenue-table td:last-child {
+  text-align: right;
+}
+
 @media (max-width: 576px) {
   .dashboard-page {
     padding: 16px;
@@ -608,6 +763,11 @@ body {
 
   .ranking-bar-track {
     grid-row: 2;
+  }
+
+  .revenue-period-pill {
+    padding: 5px 10px;
+    font-size: 0.78rem;
   }
 }
 

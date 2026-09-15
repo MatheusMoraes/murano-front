@@ -40,10 +40,18 @@ export default function ProductsPage() {
     loadCategories();
 
     // Uma categoria pode ser criada/editada/excluída na tela de Categorias
-    // enquanto essa página está aberta em outra aba/rota — recarrega a
-    // lista pra manter o filtro e o formulário coerentes.
-    window.addEventListener("categories:changed", loadCategories);
-    return () => window.removeEventListener("categories:changed", loadCategories);
+    // enquanto essa página está montada (SPA, sem reload) — recarrega a
+    // lista de categorias (filtro/formulário) e também os produtos, já que
+    // cada produto carrega o nome da categoria como snapshot vindo do
+    // backend (categoriaNome): sem isso, renomear uma categoria só
+    // apareceria nos cards de produto depois de salvar algo ou recarregar
+    // a página.
+    function handleCategoriesChanged() {
+      loadCategories();
+      loadProducts();
+    }
+    window.addEventListener("categories:changed", handleCategoriesChanged);
+    return () => window.removeEventListener("categories:changed", handleCategoriesChanged);
   }, []);
 
   const filteredProducts = useMemo(() => {
