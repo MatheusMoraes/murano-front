@@ -5,11 +5,13 @@ import DashboardPage from "./pages/DashboardPage";
 import ProductsPage from "./pages/ProductsPage";
 import ClientsPage from "./pages/ClientsPage";
 import CategoriesPage from "./pages/CategoriesPage";
+import ProfilePage from "./pages/ProfilePage";
 import LoginPage from "./pages/LoginPage";
 import PrivateRoute from "./components/PrivateRoute";
 import { useAuth } from "./contexts/AuthContext";
 import api from "./api/api";
 import type { Product } from "./types/products";
+import { getIniciais } from "./utils/getIniciais";
 import logo from "./assets/logo.png";
 
 const PING_INTERVAL_MS = 10_000;
@@ -77,11 +79,13 @@ function useLowStockCount() {
 }
 
 function AuthenticatedApp() {
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const lowStockCount = useLowStockCount();
   const [showLowStockAlert, setShowLowStockAlert] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
   const bellRef = useRef<HTMLDivElement>(null);
+  const profileRef = useRef<HTMLDivElement>(null);
 
   // Fecha o alerta ao clicar fora dele.
   useEffect(() => {
@@ -97,9 +101,29 @@ function AuthenticatedApp() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showLowStockAlert]);
 
+  // Mesmo padrão do sino de estoque baixo acima: fecha o dropdown do
+  // perfil ao clicar fora dele.
+  useEffect(() => {
+    if (!showProfileMenu) return;
+
+    function handleClickOutside(e: MouseEvent) {
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+        setShowProfileMenu(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showProfileMenu]);
+
   function goToLowStockProducts() {
     setShowLowStockAlert(false);
     navigate("/products");
+  }
+
+  function goToProfile() {
+    setShowProfileMenu(false);
+    navigate("/perfil");
   }
 
   async function handleLogout() {
@@ -108,7 +132,7 @@ function AuthenticatedApp() {
     } catch (err) {
       console.error("Erro ao encerrar sessão", err);
     } finally {
-      navigate("/login", { replace: true });
+      navigate("/login", { replace: true, state: null });
     }
   }
 
@@ -179,9 +203,35 @@ function AuthenticatedApp() {
             )}
           </div>
 
-          <button className="btn-outline" onClick={handleLogout}>
-            Sair
-          </button>
+          {/* Avatar redondo com as iniciais do nome — clique abre o
+              dropdown com o link pro perfil (dados + trocar senha) e
+              sair, no lugar de um botão "Sair" solto no header. */}
+          <div className="profile-menu-wrapper" ref={profileRef}>
+            <button
+              type="button"
+              className="profile-avatar"
+              onClick={() => setShowProfileMenu((prev) => !prev)}
+              aria-label="Menu do perfil"
+              aria-expanded={showProfileMenu}
+            >
+              {getIniciais(user?.nome)}
+            </button>
+
+            {showProfileMenu && (
+              <div className="profile-dropdown">
+                <div className="profile-dropdown__header">
+                  <p className="profile-dropdown__name">{user?.nome}</p>
+                  <p className="profile-dropdown__email">{user?.email}</p>
+                </div>
+                <button type="button" className="profile-dropdown__item" onClick={goToProfile}>
+                  Perfil
+                </button>
+                <button type="button" className="profile-dropdown__item" onClick={handleLogout}>
+                  Sair
+                </button>
+              </div>
+            )}
+          </div>
         </nav>
       </header>
 
@@ -191,6 +241,7 @@ function AuthenticatedApp() {
         <Route path="/clients" element={<PrivateRoute><ClientsPage /></PrivateRoute>} />
         <Route path="/products" element={<PrivateRoute><ProductsPage /></PrivateRoute>} />
         <Route path="/categories" element={<PrivateRoute><CategoriesPage /></PrivateRoute>} />
+        <Route path="/perfil" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
         {/* Qualquer rota desconhecida cai em "/", que já é protegida pelo
             PrivateRoute — se não estiver logado, redireciona pro /login em
             vez de mostrar o cabeçalho com uma área de conteúdo em branco. */}

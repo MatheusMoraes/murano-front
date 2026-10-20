@@ -15,7 +15,10 @@ export default function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const redirectTo = (location.state as { from?: string })?.from ?? "/";
+  // "/perfil" nunca deve ser destino pós-login — não faz sentido cair
+  // direto numa subtela ao entrar; nesse caso volta pro dashboard.
+  const fromState = (location.state as { from?: string })?.from;
+  const redirectTo = fromState && fromState !== "/perfil" ? fromState : "/";
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();

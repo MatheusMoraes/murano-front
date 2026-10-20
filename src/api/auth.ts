@@ -1,5 +1,5 @@
 import api from "./api";
-import type { LoginRequest, User } from "../types/auth";
+import type { ChangePasswordRequest, LoginRequest, User } from "../types/auth";
 
 /**
  * Autentica o usuário. O backend valida email/senha, gera o JWT e o envia
@@ -26,4 +26,10 @@ export async function getCurrentUser(): Promise<User | null> {
   } catch {
     return null;
   }
+}
+
+// Exige a senha atual (verificada no backend) — sem confirmação por e-mail,
+// a sessão logada já comprova quem é.
+export async function changePassword(dto: ChangePasswordRequest): Promise<void> {
+  await api.put("ChangePassword", dto);
 }
